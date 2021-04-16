@@ -4,3 +4,8 @@
 Aprendo la cartella si aprirà automaticamente il venv di conda (verificare). Sarà sincronizzato anche visual studio (utilizzato per notebook jupiter) per disabilitare il venv
 
 `deactivate` o `conda deactivate`
+
+
+attivare tensorboard da terminale
+
+`tensroboard --logdir`
