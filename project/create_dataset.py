@@ -3,6 +3,12 @@
 
 import cv2
 
+# to do:
+    # 1 ridimensionare img ---> cv2 o PIL?
+    # distribuire randomicamente tutte le label tra test.txt e train.txt
+
+img_counter = 0
+
 ## se necessario riadatta con il for del main
 def getAllFrames(path):
     # Opens the Video file
@@ -21,7 +27,8 @@ def getAllFrames(path):
     return True
 
 
-def getFrame(path, n):
+def getFrame(path, n, labels_file, dataset_class):
+    global img_counter
 
     video = cv2.VideoCapture(path)
 
@@ -30,8 +37,8 @@ def getFrame(path, n):
 
     ## divide with integral result (discard remainder)
 
-    print("total frames:        ", total_frames,
-        "\nframe step:          ", frames_step)
+    # print("total frames:        ", total_frames,
+    #     "\nframe step:          ", frames_step)
 
     for i in range(n):
         #here, we set the parameter 1 which is the frame number to the frame (i*frames_step)
@@ -42,34 +49,48 @@ def getFrame(path, n):
             break
 
         ## correggi deve salvare tutte le immagini in una cartella col numero progressivo
-        ## tipo empty 1, full_2 ecc..  
-        cv2.imwrite('static/datasets/img/' + '/trashbean_'+str(i)+'.jpg', frame)
+        ## tipo empty 1, full_2 ecc.. 
+         
+        # print(frame.shape)
+        path_newImg = 'static/datasets/img/trashbean_'+str(img_counter)+'.jpg'
+        label = 'trashbean_'+str(img_counter)+'.jpg'
+
+        labels_file.write(label + ', ' + str(dataset_class))
+        labels_file.write("\n")
+
+
+        cv2.imwrite(path_newImg, frame)
+        img_counter = img_counter + 1
 
     video.release()
     return True
 
 def main():
-    
     path_vid = 'static/datasets/videos/'
     ext = '.mp4'
+
+    # i nomi della classe coincideranno con i nomi dei video di acquisizione contenuti
+    # nelle varie cartelle in modo da poter estrarre autonomamente il dataset
 
     class_dict = {
         "empty": -1,
         "half": 0,
         "full": 1
     }
+    # for key in class_dict:
+    #     print(key, '-->', class_dict[key])
 
-    for key in class_dict:
-        print(key, '-->', class_dict[key])
+    source_folders_arr = ["01"]    ## 02 non presente ma usato per test
 
+    # n di frame per video
+    frames_per_video = 3   
 
-    source_folder_arr = ["01", "02"]    ## 02 non presente ma usato per test
-    video_name_arr = ["vuoto", "mezzo", "pieno"]
+    labels_txt = open('static/datasets/all_labels.txt', 'a')
 
-    n = 3
+    for source in (source_folders_arr):       ## scan del numero del dataset
+        for key in (class_dict):         ## scan delle classi del dataset
+            label = getFrame(path_vid + source + '/' + key + ext, frames_per_video, labels_txt, class_dict[key])            
 
-    for source in (source_folder_arr):       ## scan del numero del dataset
-        for video in (video_name_arr):         ## scan delle classi del dataset
-            getFrame(path_vid + source + '/' + video + ext, n)
+    labels_txt.close()
 
 main()
