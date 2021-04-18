@@ -21,9 +21,7 @@ def getAllFrames(path):
     return True
 
 
-def getFrame(path, n, dataset_numb, classe_app):
-
-    print("PATH", path)
+def getFrame(path, n):
 
     video = cv2.VideoCapture(path)
 
@@ -45,22 +43,33 @@ def getFrame(path, n, dataset_numb, classe_app):
 
         ## correggi deve salvare tutte le immagini in una cartella col numero progressivo
         ## tipo empty 1, full_2 ecc..  
-        cv2.imwrite('static/datasets/img/' + dataset_numb + '/' + classe_app + '/dataset'+str(i)+'.jpg',frame)
+        cv2.imwrite('static/datasets/img/' + '/trashbean_'+str(i)+'.jpg', frame)
 
     video.release()
     return True
 
 def main():
-
-    datasets_numb = ["01", "02"]    ## 02 non presente ma usato per test
-    classes = ["vuoto", "mezzo", "pieno"]
-    path1 = 'static/datasets/videos/'
+    
+    path_vid = 'static/datasets/videos/'
     ext = '.mp4'
+
+    class_dict = {
+        "empty": -1,
+        "half": 0,
+        "full": 1
+    }
+
+    for key in class_dict:
+        print(key, '-->', class_dict[key])
+
+
+    source_folder_arr = ["01", "02"]    ## 02 non presente ma usato per test
+    video_name_arr = ["vuoto", "mezzo", "pieno"]
 
     n = 3
 
-    for j in (datasets_numb):       ## scan del numero del dataset
-        for i in (classes):         ## scan delle classi del dataset
-            getFrame(path1 + j + '/' + i + ext, n, j, i)
+    for source in (source_folder_arr):       ## scan del numero del dataset
+        for video in (video_name_arr):         ## scan delle classi del dataset
+            getFrame(path_vid + source + '/' + video + ext, n)
 
 main()
