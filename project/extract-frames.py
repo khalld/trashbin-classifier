@@ -42,6 +42,9 @@ def getFrame(path, n, dataset_numb, classe_app):
         
         if ret == False:
             break
+
+        ## correggi deve salvare tutte le immagini in una cartella col numero progressivo
+        ## tipo empty 1, full_2 ecc..  
         cv2.imwrite('static/datasets/img/' + dataset_numb + '/' + classe_app + '/dataset'+str(i)+'.jpg',frame)
 
     video.release()
