@@ -8,4 +8,4 @@ Aprendo la cartella si aprirà automaticamente il venv di conda (verificare). Sa
 
 attivare tensorboard da terminale
 
-`tensroboard --logdir`
+`tensroboard --logdir logs`
