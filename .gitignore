@@ -6,6 +6,7 @@ logs
 **/static/**
 **/data/**
 **/fashion/**
+**/8scenes/**
 *.pth
 
 # Byte-compiled / optimized / DLL files
