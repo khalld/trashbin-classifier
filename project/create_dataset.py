@@ -83,7 +83,7 @@ def main():
     source_folders_arr = ["01"]    ## 02 non presente ma usato per test
 
     # n di frame per video
-    frames_per_video = 3   
+    frames_per_video = 100   
 
     labels_txt = open('static/datasets/all_labels.txt', 'a')
 
