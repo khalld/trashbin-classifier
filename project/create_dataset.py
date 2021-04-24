@@ -4,7 +4,7 @@
 import cv2
 
 # to do:
-    # 1 ridimensionare img ---> cv2 o PIL?
+    # 1 ridimensionare img ---> cv2 o PIL? --> lo fa nella classe direttamente
     # distribuire randomicamente tutte le label tra test.txt e train.txt
 
 img_counter = 0
@@ -80,7 +80,7 @@ def main():
     # for key in class_dict:
     #     print(key, '-->', class_dict[key])
 
-    source_folders_arr = ["01"]    ## 02 non presente ma usato per test
+    source_folders_arr = ["01", "02", "03"]    ## 02 non presente ma usato per test
 
     # n di frame per video
     frames_per_video = 100   
