@@ -88,7 +88,6 @@ def main():
 
     for source in (source_folders_arr):       ## scan del numero del dataset
         for key in (class_dict):         ## scan delle classi del dataset
-            print("cccc", labels_txt)
             label = getFrame(path_vid + source + '/' + key + ext, frames_per_video, labels_txt, class_dict[key])            
 
     labels_txt.close()
