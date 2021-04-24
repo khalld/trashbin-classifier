@@ -58,7 +58,6 @@ def getFrame(path, n, labels_file, dataset_class):
         labels_file.write(label + ', ' + str(dataset_class))
         labels_file.write("\n")
 
-
         cv2.imwrite(path_newImg, frame)
         img_counter = img_counter + 1
 
@@ -83,12 +82,13 @@ def main():
     source_folders_arr = ["01", "02", "03"]    ## 02 non presente ma usato per test
 
     # n di frame per video
-    frames_per_video = 100   
+    frames_per_video = 100
 
     labels_txt = open('static/datasets/all_labels.txt', 'a')
 
     for source in (source_folders_arr):       ## scan del numero del dataset
         for key in (class_dict):         ## scan delle classi del dataset
+            print("cccc", labels_txt)
             label = getFrame(path_vid + source + '/' + key + ext, frames_per_video, labels_txt, class_dict[key])            
 
     labels_txt.close()
