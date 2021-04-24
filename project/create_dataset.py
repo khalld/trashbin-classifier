@@ -1,7 +1,7 @@
 ## Simple script to extract frames from a videos
 ## https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_gui/py_video_display/py_video_display.html
 
-import cv2
+from cv2 import cv2
 
 # to do:
     # 1 ridimensionare img ---> cv2 o PIL? --> lo fa nella classe direttamente
