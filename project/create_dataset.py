@@ -2,6 +2,7 @@
 ## https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_gui/py_video_display/py_video_display.html
 
 from cv2 import cv2
+import random
 
 # to do:
     # 1 ridimensionare img ---> cv2 o PIL? --> lo fa nella classe direttamente
@@ -65,6 +66,10 @@ def getFrame(path, n, labels_file, dataset_class):
     return True
 
 def main():
+
+    ## si deve prevedere un modo per resettare il file all_labels, training e test rispettivamente perché scrive nuove linee
+    ### ******** get frames ****** ####
+
     path_vid = 'static/datasets/videos/'
     ext = '.mp4'
 
@@ -84,12 +89,49 @@ def main():
     # n di frame per video
     frames_per_video = 100
 
-    labels_txt = open('static/datasets/all_labels.txt', 'a')
+    ## labels_txt = open('static/datasets/all_labels.txt', 'a')
 
-    for source in (source_folders_arr):       ## scan del numero del dataset
-        for key in (class_dict):         ## scan delle classi del dataset
-            label = getFrame(path_vid + source + '/' + key + ext, frames_per_video, labels_txt, class_dict[key])            
+    ##### for source in (source_folders_arr):       ## scan del numero del dataset
+    #####     for key in (class_dict):         ## scan delle classi del dataset
+    #####         label = getFrame(path_vid + source + '/' + key + ext, frames_per_video, labels_txt, class_dict[key])            
 
-    labels_txt.close()
+    ## labels_txt.close()
+
+    ## lines = open('static/datasets/train.txt').readlines()
+
+    ### ********* serate labels randomicaly in training e test ********* ###
+
+    with open('static/datasets/all_labels.txt', mode="r", encoding="utf-8") as myFile:
+        lines = myFile.readlines()
+
+    random.shuffle(lines)
+
+    ## print (type(lines), len(lines))
+
+    j = 0
+
+    with open('static/datasets/test.txt', 'a') as file_test:
+        with open('static/datasets/train.txt', 'a') as file_train:
+            for i in range(0, len(lines)):
+                if ( j < 350 ):
+                    file_train.write(lines[i])
+                else:
+                    file_test.write(lines[i])
+                
+                ## print(lines[i])
+
+                j+=1
+
+    ## test
+
+    ## with open('static/datasets/test.txt', mode="r", encoding="utf-8") as myFile:
+    ##     tmp = myFile.readlines()
+ 
+    ## with open('static/datasets/train.txt', mode="r", encoding="utf-8") as myFile:
+    ##     tmp2 = myFile.readlines()
+
+    ## print(len(tmp), len(tmp2))
+
+    print("controller", j)
 
 main()
