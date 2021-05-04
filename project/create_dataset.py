@@ -99,7 +99,7 @@ def main():
 
     ## lines = open('static/datasets/train.txt').readlines()
 
-    ### ********* serate labels randomicaly in training e test ********* ###
+    ### ********* separate labels randomicaly in training e test ********* ###
 
     with open('static/datasets/all_labels.txt', mode="r", encoding="utf-8") as myFile:
         lines = myFile.readlines()
