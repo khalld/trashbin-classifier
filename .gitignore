@@ -9,6 +9,7 @@ logs
 **/fashion/**
 **/8scenes/**
 *.pth
+**/mnist/**
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

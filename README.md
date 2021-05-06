@@ -5,7 +5,17 @@ Aprendo la cartella si aprirà automaticamente il venv di conda (verificare). Sa
 
 `deactivate` o `conda deactivate`
 
+run venv, sulla root del progetto
+
+`source venv/bin/activate`
 
 attivare tensorboard da terminale
 
 `tensroboard --logdir logs`
+
+Per colab
+
+```
+%load_ext tensorboard # carico tensorboard su colab
+%tensorboard --logdir logs
+```
