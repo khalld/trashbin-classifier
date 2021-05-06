@@ -38,8 +38,8 @@ def getFrame(path, n, labels_file, dataset_class):
 
     ## divide with integral result (discard remainder)
 
-    # print("total frames:        ", total_frames,
-    #     "\nframe step:          ", frames_step)
+    print("total frames:        ", total_frames,
+        "\nframe step:          ", frames_step)
 
     for i in range(n):
         #here, we set the parameter 1 which is the frame number to the frame (i*frames_step)
@@ -51,7 +51,7 @@ def getFrame(path, n, labels_file, dataset_class):
 
         ## correggi deve salvare tutte le immagini in una cartella col numero progressivo
         ## tipo empty 1, full_2 ecc.. 
-         
+        
         # print(frame.shape)
         path_newImg = 'static/datasets/img/trashbean_'+str(img_counter)+'.jpg'
         label = 'trashbean_'+str(img_counter)+'.jpg'
@@ -67,7 +67,7 @@ def getFrame(path, n, labels_file, dataset_class):
 
 def main():
 
-    ## si deve prevedere un modo per resettare il file all_labels, training e test rispettivamente perché scrive nuove linee
+    ## nota: resettare il file all_labels, training e test rispettivamente
     ### ******** get frames ****** ####
 
     path_vid = 'static/datasets/videos/'
@@ -84,20 +84,18 @@ def main():
     # for key in class_dict:
     #     print(key, '-->', class_dict[key])
 
-    source_folders_arr = ["01", "02", "03"]    ## 02 non presente ma usato per test
+    source_folders_arr = ["01", "02", "03"]
 
     # n di frame per video
     frames_per_video = 100
 
-    ## labels_txt = open('static/datasets/all_labels.txt', 'a')
+    labels_txt = open('static/datasets/all_labels.txt', 'a')
 
-    ##### for source in (source_folders_arr):       ## scan del numero del dataset
-    #####     for key in (class_dict):         ## scan delle classi del dataset
-    #####         label = getFrame(path_vid + source + '/' + key + ext, frames_per_video, labels_txt, class_dict[key])            
+    for source in (source_folders_arr):       ## scan del numero del dataset
+        for key in (class_dict):         ## scan delle classi del dataset
+            label = getFrame(path_vid + source + '/' + key + ext, frames_per_video, labels_txt, class_dict[key])            
 
-    ## labels_txt.close()
-
-    ## lines = open('static/datasets/train.txt').readlines()
+    labels_txt.close()
 
     ### ********* separate labels randomicaly in training e test ********* ###
 
@@ -106,14 +104,12 @@ def main():
 
     random.shuffle(lines)
 
-    ## print (type(lines), len(lines))
-
     j = 0
 
     with open('static/datasets/test.txt', 'a') as file_test:
         with open('static/datasets/train.txt', 'a') as file_train:
             for i in range(0, len(lines)):
-                if ( j < 350 ):
+                if ( j < 650 ):
                     file_train.write(lines[i])
                 else:
                     file_test.write(lines[i])
@@ -124,11 +120,11 @@ def main():
 
     ## test
 
-    ## with open('static/datasets/test.txt', mode="r", encoding="utf-8") as myFile:
-    ##     tmp = myFile.readlines()
- 
-    ## with open('static/datasets/train.txt', mode="r", encoding="utf-8") as myFile:
-    ##     tmp2 = myFile.readlines()
+    with open('static/datasets/test.txt', mode="r", encoding="utf-8") as myFile:
+        tmp = myFile.readlines()
+
+    with open('static/datasets/train.txt', mode="r", encoding="utf-8") as myFile:
+        tmp2 = myFile.readlines()
 
     ## print(len(tmp), len(tmp2))
 
