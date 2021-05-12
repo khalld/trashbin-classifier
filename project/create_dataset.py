@@ -77,9 +77,9 @@ def main():
     # nelle varie cartelle in modo da poter estrarre autonomamente il dataset
 
     class_dict = {
-        "empty": -1,
-        "half": 0,
-        "full": 1
+        "empty": 0,
+        "half": 1,
+        "full": 2
     }
     # for key in class_dict:
     #     print(key, '-->', class_dict[key])

@@ -3,7 +3,8 @@
 # tensorboard
 logs
 
-**/static/**
+/static/
+**/static/datasets/**
 
 **/data/**
 **/fashion/**
