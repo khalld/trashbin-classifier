@@ -2,31 +2,8 @@
 ## https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_gui/py_video_display/py_video_display.html
 
 from cv2 import cv2
-import random
-
-# to do:
-    # 1 ridimensionare img ---> cv2 o PIL? --> lo fa nella classe direttamente
-    # distribuire randomicamente tutte le label tra test.txt e train.txt
 
 img_counter = 0
-
-## se necessario riadatta con il for del main
-def getAllFrames(path):
-    # Opens the Video file
-    cap = cv2.VideoCapture(path)
-    i=0
-
-    while(cap.isOpened()):
-        ret, frame = cap.read() ## returns a bool (True/False). If frame is read correctly, it will be True. So you can check end of the video by checking this return value.
-        if ret == False:
-            break
-        cv2.imwrite('static/datasets/img/01/dataset'+str(i)+'.jpg',frame)
-        i+=1
-
-    cap.release()
-
-    return True
-
 
 def getFrame(path, n, labels_file, dataset_class):
     global img_counter
@@ -96,38 +73,5 @@ def main():
             label = getFrame(path_vid + source + '/' + key + ext, frames_per_video, labels_txt, class_dict[key])            
 
     labels_txt.close()
-
-    ### ********* separate labels randomicaly in training e test ********* ###
-
-    with open('static/datasets/all_labels.txt', mode="r", encoding="utf-8") as myFile:
-        lines = myFile.readlines()
-
-    random.shuffle(lines)
-
-    j = 0
-
-    with open('static/datasets/test.txt', 'a') as file_test:
-        with open('static/datasets/train.txt', 'a') as file_train:
-            for i in range(0, len(lines)):
-                if ( j < 650 ):
-                    file_train.write(lines[i])
-                else:
-                    file_test.write(lines[i])
-                
-                ## print(lines[i])
-
-                j+=1
-
-    ## test
-
-    with open('static/datasets/test.txt', mode="r", encoding="utf-8") as myFile:
-        tmp = myFile.readlines()
-
-    with open('static/datasets/train.txt', mode="r", encoding="utf-8") as myFile:
-        tmp2 = myFile.readlines()
-
-    ## print(len(tmp), len(tmp2))
-
-    print("controller", j)
 
 main()
