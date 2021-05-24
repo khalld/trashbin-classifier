@@ -5,7 +5,7 @@ from cv2 import cv2
 
 img_counter = 0
 
-def getFrame(path, n, labels_file, dataset_class):
+def getFrame(path, path_newImg, n, labels_file, dataset_class):
     global img_counter
 
     video = cv2.VideoCapture(path)
@@ -26,17 +26,10 @@ def getFrame(path, n, labels_file, dataset_class):
         if ret == False:
             break
 
-        ## correggi deve salvare tutte le immagini in una cartella col numero progressivo
-        ## tipo empty 1, full_2 ecc.. 
-        
-        # print(frame.shape)
-        path_newImg = 'static/datasets/img/trashbean_'+str(img_counter)+'.jpg'
-        label = 'trashbean_'+str(img_counter)+'.jpg'
-
-        labels_file.write(label + ', ' + str(dataset_class))
+        labels_file.write('trashbean_'+str(img_counter)+'.jpg' + ', ' + str(dataset_class))
         labels_file.write("\n")
 
-        cv2.imwrite(path_newImg, frame)
+        cv2.imwrite(path_newImg + 'trashbean_'+str(img_counter)+'.jpg', frame)
         img_counter = img_counter + 1
 
     video.release()
@@ -44,34 +37,39 @@ def getFrame(path, n, labels_file, dataset_class):
 
 def main():
 
-    ## nota: resettare il file all_labels, training e test rispettivamente
+    ## nota: resettare il file all_labels, training e test rispettivamente SEMPRE
     ### ******** get frames ****** ####
-
-    path_vid = 'static/datasets/videos/'
-    ext = '.mp4'
-
-    # i nomi della classe coincideranno con i nomi dei video di acquisizione contenuti
-    # nelle varie cartelle in modo da poter estrarre autonomamente il dataset
 
     class_dict = {
         "empty": 0,
         "half": 1,
         "full": 2
     }
-    # for key in class_dict:
-    #     print(key, '-->', class_dict[key])
 
     source_folders_arr = ["01", "02", "03"]
+    source_type_datasets = ["test", "training", "validation"]
+
+    path_vid = 'static/datasets/videos/'
+    ext = '.mp4'
 
     # n di frame per video
-    frames_per_video = 100
+    frames_per_video = 3
 
-    labels_txt = open('static/datasets/all_labels.txt', 'a')
+    for source_d in (source_type_datasets):
+        curr_path = 'static/datasets/images/' + source_d + '/labels.txt'
+        
+        labels_txt = open(curr_path, 'a')
+        labels_txt.truncate(0)
 
-    for source in (source_folders_arr):       ## scan del numero del dataset
-        for key in (class_dict):         ## scan delle classi del dataset
-            label = getFrame(path_vid + source + '/' + key + ext, frames_per_video, labels_txt, class_dict[key])            
+        for source in (source_folders_arr):       ## scan del numero del dataset
+            for key in (class_dict):         ## scan delle classi del dataset
+                label = getFrame(   path_vid + source_d + '/' + source + '/' + key + ext,
+                                    'static/datasets/images/' + source_d + '/img/',
+                                    frames_per_video,
+                                    labels_txt, 
+                                    class_dict[key]
+                                )            
 
-    labels_txt.close()
+        labels_txt.close()
 
 main()
