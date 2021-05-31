@@ -3,6 +3,8 @@
 
 from cv2 import cv2
 
+# nota: ho sistemato il metodo per fare l'estrazione dei video nelle sottocartelle ma l'indice non si resetta in base al type
+
 img_counter = 0
 
 def getFrame(path, path_newImg, n, labels_file, dataset_class):
