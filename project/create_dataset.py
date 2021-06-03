@@ -55,7 +55,7 @@ def main():
     ext = '.mp4'
 
     # n di frame per video
-    frames_per_video = 3
+    frames_per_video = 100
 
     for source_d in (source_type_datasets):
         curr_path = 'static/datasets/images/' + source_d + '/labels.txt'
