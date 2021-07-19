@@ -60,8 +60,8 @@ class TrashbeanDataset(data.Dataset): # data.Dataset https://pytorch.org/docs/st
         if splitext(csv)[1] != '.csv':
             raise NotImplementedError("Only .csv files are supported")
         
-        self.data = pd.read_csv(csv)    # import from csv
-        self.data = self.data.iloc[np.random.permutation(len(self.data))] # random auto-permutation of the data
+        self.data = pd.read_csv(csv)        # import from csv using pandas
+        self.data = self.data.iloc[np.random.permutation(len(self.data))]       # random auto-permutation of the data
         self.transform = transform
 
     def __len__(self):
@@ -83,8 +83,9 @@ class TrashbeanDataset(data.Dataset): # data.Dataset https://pytorch.org/docs/st
         """
         if i is None:
             raise NotImplementedError("Only int type is supported for get the item. None is not allowed")
+        
         im_path, im_label = self.data.iloc[i]['path'], self.data.iloc[i].label
-        im = Image.open(im_path)
+        im = Image.open(im_path)        # Handle image with Image module from Pillow https://pillow.readthedocs.io/en/stable/reference/Image.html
         if self.transform is not None:
             im = self.transform(im)
         return im, im_label
@@ -125,9 +126,9 @@ class TDContainer:
         self.training = TrashbeanDataset(training['path'], transform=training['transform'])
         self.validation = TrashbeanDataset(validation['path'], transform=validation['transform'])
         self.test = TrashbeanDataset(test['path'], transform=test['transform'])
-        self.dl = False
+        self.hasDl = False
 
-    def create_data_loader(self, batches=32, workers=2):
+    def create_data_loader(self, _batch_size=32, _num_workers=2):
         """ Create data loader for each dataset
 
             https://pytorch.org/docs/stable/data.html
@@ -135,28 +136,27 @@ class TDContainer:
             Parameters
             ----------
 
-            batches: int
+            _batch_size: int
                 number of batches, default 32
 
-            workers: int
+            _num_workers: int
                 number of workers
         """
 
-        if isinstance(batches, int) is False or isinstance(workers, int) is False:
+        if isinstance(_batch_size, int) is False or isinstance(_num_workers, int) is False:
             raise NotImplementedError("Parameters accept only int value.")
 
-        self.training_loader = DataLoader(self.training, batch_size=batches, num_workers=workers, shuffle=True)
-        self.validation_loader = DataLoader(self.validation, batch_size=batches, num_workers=workers)
-        self.test_loader = DataLoader(self.test, batch_size=batches, num_workers=workers)
-        self.dl = True
+        self.training_loader = DataLoader(self.training, batch_size=_batch_size, num_workers=_num_workers, shuffle=True)
+        self.validation_loader = DataLoader(self.validation, batch_size=_batch_size, num_workers=_num_workers)
+        self.test_loader = DataLoader(self.test, batch_size=_batch_size, num_workers=_num_workers)
+        self.hasDl = True
 
     def show_info(self):
         """ Print info of dataset """
         print("\n=== *** DB INFO *** ===")
         print("Training:", self.training.__len__(), "values, \nValidation:", self.validation.__len__(), "values, \nTest:", self.test.__len__())
-        print("DataLoader:", self.dl)
+        print("DataLoader:", self.hasDl)
         print("=== *** END *** ====\n")
-
 
 class AverageValueMeter():
     """Calculate Average Value Meter"""
@@ -177,7 +177,10 @@ class AverageValueMeter():
         except:
             return None
 
-def trainval_classifier(model, train_loader, validation_loader, exp_name='experiment', lr=0.01, epochs=10, momentum=0.99, logdir='/content/gdrive/MyDrive/trashbean-classifier/logs', train_from_epoch=0):
+def trainval_classifier(model, train_loader, validation_loader, exp_name='experiment',
+                        lr=0.01, epochs=10, momentum=0.99, train_from_epoch=0,
+                        log_dir='/content/gdrive/MyDrive/trashbean-classifier/logs', models_dir='/content/gdrive/MyDrive/trashbean-classifier/logs/models/',
+                        save_on_runtime=False):
     timer_start = time.time()    
     
     criterion = nn.CrossEntropyLoss() # used for classification https://pytorch.org/docs/stable/generated/torch.nn.CrossEntropyLoss.html
@@ -189,7 +192,7 @@ def trainval_classifier(model, train_loader, validation_loader, exp_name='experi
     acc_meter = AverageValueMeter()
 
     # writer
-    writer = SummaryWriter(join(logdir, exp_name))
+    writer = SummaryWriter(join(log_dir, exp_name))
 
     # device
     device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -240,11 +243,13 @@ def trainval_classifier(model, train_loader, validation_loader, exp_name='experi
 
         # conserviamo i pesi del modello alla fine di un ciclo di training e test..
         # ...sul runtime
-        torch.save(model.state_dict(), '%s-%d.pth'%(exp_name, (e+1) + train_from_epoch ) )
+        if save_on_runtime is True:
+            torch.save(model.state_dict(), '%s-%d.pth'%(exp_name, (e+1) + train_from_epoch ) )
 
-        # ...ogni 20 epoche salvo il modello sul drive
+        # ...ogni 20 epoche salvo il modello sul drive per evitare problemi di spazio su Gdrive
         if ((e+1) % 20 == 0 or (e+1) % 50 == 0):
-            torch.save(model.state_dict(), '/content/gdrive/MyDrive/trashbean-classifier/logs/models/%s-%d.pth'%(exp_name, (e+1) + train_from_epoch ) )
+            #torch.save(model.state_dict(), '/content/gdrive/MyDrive/trashbean-classifier/logs/models/%s-%d.pth'%(exp_name, (e+1) + train_from_epoch ) )
+            torch.save(model.state_dict(), models_dir + '%s-%d.pth'%(exp_name, (e+1) + train_from_epoch ) )
 
     timer_end = time.time()
     print("Ended in: ", ((timer_end - timer_start) / 60 ), "minutes" )
@@ -264,6 +269,8 @@ def test_classifier(model, loader):
         labels.extend(list(labs))
     return np.array(predictions), np.array(labels)
 
+
+### è qui che devo implementare il design pattern!!!
 class Pretrained_models:
     def __init__(self, dataset, num_class):
         self.dataset = dataset
@@ -283,7 +290,7 @@ class Pretrained_models:
 
     def finetuning_and_accuracy(self, _exp_name, _lr, _epochs, _train_from_epoch ):
 
-        if self.dataset.dl is False:
+        if self.dataset.hasDl is False:
             raise NotImplementedError("Need to instantiate the dataLoader before. Use TDContainer.create_data_loader(batches, workers)")
         
         print("*** Training procedure started, please wait ....")
