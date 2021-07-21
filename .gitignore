@@ -4,7 +4,7 @@
 logs
 
 /static/
-/project/dataset/**
+**/dataset/**
 
 **/data/**
 **/fashion/**

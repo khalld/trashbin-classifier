@@ -38,27 +38,15 @@ class TDContainer:
         self.test = TrashbeanDataset(test['path'], transform=test['transform'])
         self.hasDl = False
 
-    def create_data_loader(self, _batch_size=32, _num_workers=2, _drop_last=False):
-        """ Create data loader for each dataset
+    def create_data_loader(self, batch_size=32, num_workers=2, drop_last=False):
+        """ Create data loader for each dataset https://pytorch.org/docs/stable/data.html """
 
-            https://pytorch.org/docs/stable/data.html
-            
-            Parameters
-            ----------
-
-            _batch_size: int
-                number of batches, default 32
-
-            _num_workers: int
-                number of workers
-        """
-
-        if isinstance(_batch_size, int) is False or isinstance(_num_workers, int) is False:
+        if isinstance(batch_size, int) is False or isinstance(num_workers, int) is False:
             raise NotImplementedError("Parameters accept only int value.")
 
-        self.training_loader = DataLoader(self.training, batch_size=_batch_size, num_workers=_num_workers, drop_last=_drop_last, shuffle=True)
-        self.validation_loader = DataLoader(self.validation, batch_size=_batch_size, num_workers=_num_workers, drop_last=_drop_last)
-        self.test_loader = DataLoader(self.test, batch_size=_batch_size, num_workers=_num_workers, drop_last=_drop_last)
+        self.training_loader = DataLoader(self.training, batch_size=batch_size, num_workers=num_workers, drop_last=drop_last, shuffle=True)
+        self.validation_loader = DataLoader(self.validation, batch_size=batch_size, num_workers=num_workers, drop_last=drop_last)
+        self.test_loader = DataLoader(self.test, batch_size=batch_size, num_workers=num_workers, drop_last=drop_last)
         self.hasDl = True
 
     def show_info(self):

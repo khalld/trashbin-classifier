@@ -1,9 +1,12 @@
 
 from __future__ import annotations
-from abc import ABC, abstractmethod # https://docs.python.org/3/library/abc.html
+from abc import ABC, abstractmethod
+
+from torch.utils.data.dataloader import DataLoader # https://docs.python.org/3/library/abc.html
+from TDContainer import TDContainer 
 import time
 from sklearn.metrics import accuracy_score  # computes subset accuracy: the set of labels predicted for a sample must exactly match the corresponding set of labels in y_true. https://scikit-learn.org/stable/modules/generated/sklearn.metrics.accuracy_score.html
-from os.path import join, splitext
+from os.path import join
 import numpy as np
 
 import torch
@@ -43,19 +46,17 @@ class PretrainedModelsCreator(ABC):
 
     @abstractmethod
     def factory_method(self):
-        """ No default implementation needed"""
+        """No default implementation needed"""
         pass
 
-    def initialize_dst(self, dataset, output_class: int = 2, dl_attributes: dict = {'batch_size': 32, 'num_workers': 2, 'drop_last': False}) -> None:
-        """
-        The Creator's primary responsibility is not creating products. Usually, it contains
+    def initialize_dst(self, dataset: TDContainer, output_class: int = 2, batch_size: int=32, num_workers: int=2, drop_last: bool=False) -> None:
+        """The Creator's primary responsibility is not creating products. Usually, it contains
         some core business logic that relies on Product objects, returned by the factory method.
         Subclasses can indirectly change that business logic by overriding the
-        factory method and returning a different type of product from it.
-        """
+        factory method and returning a different type of product from it."""
 
+        # use cpu if is possible
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
-
         # call factory method to create a Product object
         product = self.factory_method()
         # get the model from product
@@ -63,12 +64,10 @@ class PretrainedModelsCreator(ABC):
         # set the dataset inside the object
         self.dst = dataset
         ## instantiate DataLoader too
-        self.dst.create_data_loader(_batch_size=dl_attributes['batch_size'], _num_workers=dl_attributes['num_workers'], _drop_last=dl_attributes['drop_last'] )        
+        self.dst.create_data_loader(batch_size=batch_size, num_workers=num_workers, drop_last=drop_last )
 
-    def trainval_classifier(self, exp_name='experiment', lr=0.01, epochs=10, momentum=0.99,
-                            log_dir='logs',
-                            models_dir='models',
-                            train_from_epoch=0, save_on_runtime=False, save_each_iter=20):
+    def trainval_classifier(self, model_name='experiment', lr: float=0.01, epochs: int=10, momentum: float=0.99, log_dir: str='logs', model_dir: str='models',
+                            train_from_epoch: int=0, save_on_runtime: bool=False, save_each_iter: int=20):
         
         model = self.model
         timer_start = time.time()    
@@ -82,7 +81,7 @@ class PretrainedModelsCreator(ABC):
         acc_meter = AverageValueMeter()
 
         # writer
-        writer = SummaryWriter(join(log_dir, exp_name))
+        writer = SummaryWriter(join(log_dir, model_name))
 
         model.to(self.device)
         ## definiamo un dizionario contenente i loader di training e test
@@ -91,10 +90,9 @@ class PretrainedModelsCreator(ABC):
             'validation': self.dst.validation_loader
         }
         global_step = 0
-        print("Computing epoch:")
         for e in range(epochs):
-            print(e+1, "/", epochs, "... ")
-            # iteriamo tra due modalità: train e test
+            print ("\rComputing: %d/%d" % ( e+1,  epochs), end="") # \r allow to make carriage returns
+
             for mode in ['train', 'validation']:
                 loss_meter.reset(); acc_meter.reset()
                 model.train() if mode == 'train' else model.eval()
@@ -131,18 +129,17 @@ class PretrainedModelsCreator(ABC):
             # conserviamo i pesi del modello alla fine di un ciclo di training e test..
             # ...sul runtime
             if save_on_runtime is True:
-                torch.save(model.state_dict(), '%s-%d.pth'%(exp_name, (e+1) + train_from_epoch ) )
+                torch.save(model.state_dict(), '%s-%d.pth'%(model_name, (e+1) + train_from_epoch ) )
 
             # ...ogni save_each_iter salvo il modello sul drive per evitare problemi di spazio su Gdrive
             if ((e+1) % save_each_iter == 0 or (e+1) % 50 == 0):
-                torch.save(model.state_dict(), models_dir + '%s-%d.pth'%(exp_name, (e+1) + train_from_epoch ) )
+                torch.save(model.state_dict(), model_dir + '%s-%d.pth'%(model_name, (e+1) + train_from_epoch ) )
 
         timer_end = time.time()
         print("Ended in: ", ((timer_end - timer_start) / 60 ), "minutes" )
         return model
 
-
-    def test_classifier(self, model, dataLoader):  # self.dataLoader
+    def test_classifier(self, model, dataLoader: DataLoader) -> None:  # self.dataLoader
         model.to(self.device)
         predictions, labels = [], []
         for batch in dataLoader:
@@ -155,23 +152,15 @@ class PretrainedModelsCreator(ABC):
             labels.extend(list(labs))
         return np.array(predictions), np.array(labels)
 
+    def train(self, model_name: str, lr: float=0.01, epochs: int=10, momentum: float=0.99, log_dir: str='logs', model_dir: str='models', train_from_epoch: int=0, save_on_runtime: bool=False, save_each_iter: int=20) -> None:
 
-    def train(self, parameters, paths, train_from_epoch, save_on_runtime, save_each_iter) -> None:
-
-        self.model_finetuned = self.trainval_classifier(exp_name=parameters['exp_name'], lr=parameters['lr'], epochs=parameters['epochs'],
-                                                        momentum=parameters['momentum'],
-                                                        log_dir=paths['logs'],
-                                                        models_dir=paths['models'],
-                                                        train_from_epoch=train_from_epoch,
-                                                        save_on_runtime=save_on_runtime,
-                                                        save_each_iter=save_each_iter
-                                                        )
-
-        print("**** Training procedure ended. Start to calculate accuracy ...")
+        self.model_finetuned = self.trainval_classifier(model_name=model_name, lr=lr, epochs=epochs, momentum=momentum,
+                                                        log_dir=log_dir, model_dir=model_dir,
+                                                        train_from_epoch=train_from_epoch, save_on_runtime=save_on_runtime, save_each_iter=save_each_iter )
+        print("**** Training procedure ended. Start to calculate accuracy ... ****")
 
         self.model_finetuned_predictions_test, self.dataset_labels_test = self.test_classifier(self.model_finetuned, self.dst.test_loader)
-        print("Accuracy of " + parameters['exp_name'] + " %0.2f%%" % (accuracy_score(self.dataset_labels_test, self.model_finetuned_predictions_test)*100) )
-
+        print("Accuracy of %s : %0.2f%%" % (model_name, (accuracy_score(self.dataset_labels_test, self.model_finetuned_predictions_test)*100)) )
 
     def load_model(self, path: str) -> None:
         print("Loading model using load_state_dict..")
@@ -180,10 +169,10 @@ class PretrainedModelsCreator(ABC):
     def get_info(self) -> None:
         print("Information about model:\n", self.model)
 
-"""## Concrete creators"""
+    def get_parameter(self) -> None:
+        print("Print parameter function todo....")
 
 """ Concrete Creators override the factory method in order to change the resulting product's type. """
-
 # ConcreteCreator1 
 class CCSqueezeNet(PretrainedModelsCreator):
     def factory_method(self) -> PretrainedModel:
@@ -199,9 +188,7 @@ class CCVgg16(PretrainedModelsCreator):
     def factory_method(self) -> PretrainedModel:
         return CPVgg16()
 
-"""## Product"""
-
-# Product
+"""Product"""
 class PretrainedModel(ABC):
     """ The Product interface declares the operations that all concrete products
     must implement."""
@@ -209,10 +196,7 @@ class PretrainedModel(ABC):
     def get_model(self, output_class: int = 3):
         pass
 
-"""## Concrete products"""
-
 """Concrete Products provide various implementations of the Product interface."""
-
 # ConcreteProduct1
 class CPSqueezeNet(PretrainedModel):
     def get_model(self, output_class: int = 3):
