@@ -77,8 +77,26 @@ def do_training(creator: PretrainedModelsCreator,
 def main():
     trashbean_dataset = import_dataset()
     print("Dataset loaded correctly..")
+    
+    print("Start testing (1) with lr 0.01")
 
-    print("First try launching training with Vgg16.")
+    print("---- AlexNet ----")
+    do_training(creator=CCAlexNet(),
+                dataset=trashbean_dataset,
+                output_class=3,
+                model_name=get_model_name("Vgg16", "1"),
+                batch_size=32,
+                num_workers=2,
+                drop_last=False,
+                lr=0.01,
+                epochs=50,
+                momentum=0.99,
+                train_from_epoch=0,
+                save_on_runtime=False,
+                save_each_iter=25,
+                path=GDRIVE_PATHS)
+
+    print("---- VGG 16 -----")
     do_training(creator=CCVgg16(),
                 dataset=trashbean_dataset,
                 output_class=3,
