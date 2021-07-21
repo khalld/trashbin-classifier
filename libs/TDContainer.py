@@ -1,4 +1,4 @@
-from TrashbeanDataset import TrashbeanDataset
+from libs.TrashbeanDataset import TrashbeanDataset
 from torch.utils.data import DataLoader
 
 class TDContainer:
