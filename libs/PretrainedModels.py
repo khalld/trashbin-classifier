@@ -136,7 +136,7 @@ class PretrainedModelsCreator(ABC):
                 torch.save(model.state_dict(), model_dir + '%s-%d.pth'%(model_name, (e+1) + train_from_epoch ) )
 
         timer_end = time.time()
-        print("Ended in: ", ((timer_end - timer_start) / 60 ), "minutes" )
+        print("\nEnded in: ", ((timer_end - timer_start) / 60 ), "minutes" )
         return model
 
     def test_classifier(self, model, dataLoader: DataLoader) -> None:  # self.dataLoader

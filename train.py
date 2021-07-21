@@ -87,12 +87,120 @@ def main():
                 num_workers=2,
                 drop_last=False,
                 lr=0.01,
-                epochs=1,
+                epochs=50,
                 momentum=0.99,
                 train_from_epoch=0,
                 save_on_runtime=False,
                 save_each_iter=25,
                 path=GDRIVE_PATHS)
+
+    print("Ended testing (1) with lr 0.01. Start to try with 0.003")
+
+    print("---- SqueezeNet ----")
+
+    do_training(creator=CCSqueezeNet(),
+                dataset=trashbean_dataset,
+                output_class=3,
+                model_name=get_model_name("SqueezeNet", "2"),
+                batch_size=32,
+                num_workers=2,
+                drop_last=False,
+                lr=0.003,
+                epochs=50,
+                momentum=0.99,
+                train_from_epoch=0,
+                save_on_runtime=False,
+                save_each_iter=25,
+                path=GDRIVE_PATHS)
+
+    print("---- AlexNet ----")
+
+    do_training(creator=CCAlexNet(),
+                dataset=trashbean_dataset,
+                output_class=3,
+                model_name=get_model_name("AlexNet", "2"),
+                batch_size=32,
+                num_workers=2,
+                drop_last=False,
+                lr=0.003,
+                epochs=50,
+                momentum=0.99,
+                train_from_epoch=0,
+                save_on_runtime=False,
+                save_each_iter=25,
+                path=GDRIVE_PATHS)
+
+    print("---- VGG 16 -----")
+
+    do_training(creator=CCVgg16(),
+                dataset=trashbean_dataset,
+                output_class=3,
+                model_name=get_model_name("Vgg16", "2"),
+                batch_size=32,
+                num_workers=2,
+                drop_last=False,
+                lr=0.003,
+                epochs=50,
+                momentum=0.99,
+                train_from_epoch=0,
+                save_on_runtime=False,
+                save_each_iter=25,
+                path=GDRIVE_PATHS)
+
+
+    print("Ended testing (2) with lr 0.003. Start to try with 0.001")
+
+    print("---- SqueezeNet ----")
+
+    do_training(creator=CCSqueezeNet(),
+                dataset=trashbean_dataset,
+                output_class=3,
+                model_name=get_model_name("SqueezeNet", "3"),
+                batch_size=32,
+                num_workers=2,
+                drop_last=False,
+                lr=0.001,
+                epochs=50,
+                momentum=0.99,
+                train_from_epoch=0,
+                save_on_runtime=False,
+                save_each_iter=25,
+                path=GDRIVE_PATHS)
+
+    print("---- AlexNet ----")
+
+    do_training(creator=CCAlexNet(),
+                dataset=trashbean_dataset,
+                output_class=3,
+                model_name=get_model_name("AlexNet", "3"),
+                batch_size=32,
+                num_workers=2,
+                drop_last=False,
+                lr=0.001,
+                epochs=50,
+                momentum=0.99,
+                train_from_epoch=0,
+                save_on_runtime=False,
+                save_each_iter=25,
+                path=GDRIVE_PATHS)
+
+    print("---- VGG 16 -----")
+
+    do_training(creator=CCVgg16(),
+                dataset=trashbean_dataset,
+                output_class=3,
+                model_name=get_model_name("Vgg16", "2"),
+                batch_size=32,
+                num_workers=2,
+                drop_last=False,
+                lr=0.001,
+                epochs=50,
+                momentum=0.99,
+                train_from_epoch=0,
+                save_on_runtime=False,
+                save_each_iter=25,
+                path=GDRIVE_PATHS)
+
 
 
 if __name__ == "__main__":
