@@ -91,7 +91,7 @@ class PretrainedModelsCreator(ABC):
         }
         global_step = 0
         for e in range(epochs):
-            print ("\rComputed: %d/%d, current: loss: %0.2f accuracy: %0.2f" % ( e+1,  epochs, loss_meter.value(), acc_meter.value()), end="") # \r allow to make carriage returns
+            print ("\rComputed: %d/%d, current: loss: %s accuracy: %s" % ( e+1,  epochs, loss_meter.value(), acc_meter.value()), end="") # \r allow to make carriage returns
             for mode in ['train', 'validation']:
                 loss_meter.reset(); acc_meter.reset()
                 model.train() if mode == 'train' else model.eval()
