@@ -30,8 +30,10 @@ class PretrainedModelsCreator(ABC):
         Subclasses can indirectly change that business logic by overriding the
         factory method and returning a different type of product from it."""
 
+        # implementa nel modulo
         # use cpu if is possible
-        self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        #self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        
         # call factory method to create a Product object
         product = self.factory_method()
         # get the model from product
