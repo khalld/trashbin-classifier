@@ -7,7 +7,7 @@ import torch
 from torch import nn    # basic building-blocks for graphs https://pytorch.org/docs/stable/nn.html
 from torch.optim import SGD
 from torch.utils.tensorboard import SummaryWriter
-from libs.TDContainer import TDContainer
+from TDContainer import TDContainer
 
 class AverageValueMeter():
     """ Calculate"""

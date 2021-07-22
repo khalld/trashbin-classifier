@@ -2,7 +2,7 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
 
-from libs.TDContainer import TDContainer 
+from TDContainer import TDContainer 
 
 import torch
 from torch import nn    # basic building-blocks for graphs https://pytorch.org/docs/stable/nn.html
