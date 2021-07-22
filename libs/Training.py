@@ -57,7 +57,8 @@ def trainval_classifier(model, dst_container: TDContainer, model_name='experimen
     }
     global_step = 0
     for e in range(epochs):
-        print ("\rComputed: %d/%d, current: loss: %s accuracy: %s" % ( e+1,  epochs, loss_meter.value(), acc_meter.value()), end="") # \r allow to make carriage returns
+        print ("\rComputed: %d/%d" % ( e+1,  epochs), end="") # \r allow to make carriage returns
+        ## print ("\rComputed: %d/%d, current: loss: %s accuracy: %s" % ( e+1,  epochs, loss_meter.value(), acc_meter.value()), end="") # \r allow to make carriage returns
         # iteriamo tra due modalità: train e test
         for mode in ['train', 'validation']:
             loss_meter.reset(); acc_meter.reset()
@@ -91,6 +92,8 @@ def trainval_classifier(model, dst_container: TDContainer, model_name='experimen
                 # una volta finita l'epoca sia nel caso di training che di test loggiamo le stime finali
                 writer.add_scalar('loss/' + mode, loss_meter.value(), global_step=global_step)
                 writer.add_scalar('accuracy/' + mode, acc_meter.value(), global_step=global_step)
+
+        print("\n\n", (e+1), loss_meter.value(), acc_meter.value() )
 
         # conserviamo i pesi del modello alla fine di un ciclo di training e test..
         # ...sul runtime
