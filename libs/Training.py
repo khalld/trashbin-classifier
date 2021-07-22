@@ -34,13 +34,9 @@ def trainval_test(loader: TDContainer):
     print(loader.test_loader, type(loader.test_loader))
     print(loader.validation_loader, type(loader.validation_loader))
 
-
-def trainval_classifier(model, train_loader, validation_loader, model_name='experiment', lr: float=0.01, epochs: int=10, momentum: float=0.99, logdir: str='logs', model_dir: str='models',
-                        train_from_epoch: int=0, save_on_runtime: bool=False, save_each_iter: int=20):
+def trainval_classifier(model, loaders: TDContainer, model_name='experiment', lr: float=0.01, epochs: int=10, momentum: float=0.99, logdir: str='logs', model_dir: str='models', train_from_epoch: int=0, save_on_runtime: bool=False, save_each_iter: int=20):
     timer_start = time.time()    
-    
     criterion = nn.CrossEntropyLoss() # used for classification https://pytorch.org/docs/stable/generated/torch.nn.CrossEntropyLoss.html
-    
     optimizer = SGD(model.parameters(), lr, momentum=momentum)
 
     # meters
@@ -56,8 +52,8 @@ def trainval_classifier(model, train_loader, validation_loader, model_name='expe
     model.to(device)
     ## definiamo un dizionario contenente i loader di training e test
     loader = {
-        'train': train_loader,
-        'validation': validation_loader
+        'train': loaders.training_loader,
+        'validation': loaders.validation_loader
     }
     global_step = 0
     for e in range(epochs):
@@ -106,7 +102,7 @@ def trainval_classifier(model, train_loader, validation_loader, model_name='expe
             torch.save(model.state_dict(), model_dir + '%s-%d.pth'%(model_name, (e+1) + train_from_epoch ) )
 
     timer_end = time.time()
-    print("Ended in: ", ((timer_end - timer_start) / 60 ), "minutes" )
+    print("\nEnded in: ", ((timer_end - timer_start) / 60 ), "minutes" )
     return model
 
 
