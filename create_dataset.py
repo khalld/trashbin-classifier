@@ -3,6 +3,9 @@
 
 from sys import path
 from cv2 import cv2
+from zipfile import ZipFile
+import os
+from os.path import basename
 
 img_counter = 0
 
@@ -31,7 +34,7 @@ def get_frame(path, new_path_img, n_frames, labels_txt, dst_class):
     return True
 
 def main():
-
+    """ Create image from videos and get the label """
     class_dict = {
         "empty": 0,
         "half": 1,
@@ -54,7 +57,15 @@ def main():
         for curr_folder in (source_folders_arr):
             for key in (class_dict):
                 get_frame(path_vid + source_dst + '/' + curr_folder + '/' + key + ext, 'dataset/images/', frames_per_video, all_labels, class_dict[key])
-
     all_labels.close()
+    
+
+    zf = ZipFile('dataset/images.zip', "w")
+    zf.write('dataset/all_labels.txt')
+    for dirname, subdirs, files in os.walk("dataset/images"):
+        zf.write(dirname)
+        for filename in files:
+            zf.write(os.path.join(dirname, filename))
+    zf.close()
 
 main()
