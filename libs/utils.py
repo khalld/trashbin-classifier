@@ -1,20 +1,11 @@
 from torchvision import transforms
-from string import join
+from os.path import join
 from TDContainer import TDContainer
-
-GENERAL_PATHS = {
-    'main': '/content/gdrive/MyDrive/trashbean-classifier/',
-    'dataset': '/content/gdrive/MyDrive/trashbean-classifier/dataset/',
-    'logs': '/content/gdrive/MyDrive/trashbean-classifier/logs/',
-    'models': '/content/gdrive/MyDrive/trashbean-classifier/logs/models/',
-    'libs': '/content/trashbean-classifier/libs/'
-}
 
 def get_model_name(model_name, version):
     return "%s_%s" % (model_name, version)
 
-
-def import_dataset():
+def import_dataset(path_dst: str):
     train_transform = transforms.Compose([
         transforms.Resize(256),
         transforms.RandomCrop(224),
@@ -32,17 +23,17 @@ def import_dataset():
         ])
 
     dst_train = {
-        'path': join(GENERAL_PATHS['dataset'], 'training.csv'),
+        'path': join(path_dst, 'training.csv'),
         'transform': train_transform
         }
 
     dst_validation = {
-        'path': join(GENERAL_PATHS['dataset'], 'validation.csv'),
+        'path': join(path_dst, 'validation.csv'),
         'transform': test_transform
         }
 
     dst_test = {
-        'path': join(GENERAL_PATHS['dataset'], 'test.csv'),
+        'path': join(path_dst, 'test.csv'),
         'transform': test_transform
         }
 
