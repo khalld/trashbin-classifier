@@ -1,46 +1,36 @@
 ## Simple script to extract frames from a videos
 ## https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_gui/py_video_display/py_video_display.html
 
+from sys import path
 from cv2 import cv2
-
-# nota: ho sistemato il metodo per fare l'estrazione dei video nelle sottocartelle ma l'indice non si resetta in base al type
 
 img_counter = 0
 
-def getFrame(path, path_newImg, n, labels_file, dataset_class):
+def get_frame(path, new_path_img, n_frames, labels_txt, dst_class):
     global img_counter
 
     video = cv2.VideoCapture(path)
+    tot_frames = video.get(cv2.CAP_PROP_FRAME_COUNT)
+    # frames step
+    step = tot_frames // n_frames
 
-    total_frames = video.get(cv2.CAP_PROP_FRAME_COUNT)
-    frames_step = total_frames // n
+    print("total frame %d, frame step %d" %(tot_frames, step))
 
-    ## divide with integral result (discard remainder)
+    for i in range(n_frames):
+        video.set(1, i*step)
+        ret, frame = video.read()
 
-    print("total frames:        ", total_frames,
-        "\nframe step:          ", frames_step)
-
-    for i in range(n):
-        #here, we set the parameter 1 which is the frame number to the frame (i*frames_step)
-        video.set(1,i*frames_step)
-        ret,frame = video.read()  
-        
         if ret == False:
             break
 
-        labels_file.write('trashbean_'+str(img_counter)+'.jpg' + ', ' + str(dataset_class))
-        labels_file.write("\n")
-
-        cv2.imwrite(path_newImg + 'trashbean_'+str(img_counter)+'.jpg', frame)
+        labels_txt.write('trashbean_%d.jpg, %d\n' %(img_counter, dst_class))
+        cv2.imwrite(new_path_img + 'trashbean_' + str(img_counter) + '.jpg', frame )
         img_counter = img_counter + 1
 
     video.release()
     return True
 
 def main():
-
-    ## nota: resettare il file all_labels, training e test rispettivamente SEMPRE
-    ### ******** get frames ****** ####
 
     class_dict = {
         "empty": 0,
@@ -51,27 +41,20 @@ def main():
     source_folders_arr = ["01", "02", "03"]
     source_type_datasets = ["test", "training", "validation"]
 
-    path_vid = 'static/datasets/videos/'
+    path_vid = 'dataset/videos/'
     ext = '.mp4'
 
     # n di frame per video
-    frames_per_video = 100
+    frames_per_video = 300
 
-    for source_d in (source_type_datasets):
-        curr_path = 'static/datasets/images/' + source_d + '/labels.txt'
-        
-        labels_txt = open(curr_path, 'a')
-        labels_txt.truncate(0)
+    all_labels = open('dataset/all_labels.txt', 'a')
+    all_labels.truncate(0)
 
-        for source in (source_folders_arr):       ## scan del numero del dataset
-            for key in (class_dict):         ## scan delle classi del dataset
-                label = getFrame(   path_vid + source_d + '/' + source + '/' + key + ext,
-                                    'static/datasets/images/' + source_d + '/img/',
-                                    frames_per_video,
-                                    labels_txt, 
-                                    class_dict[key]
-                                )            
+    for source_dst in (source_type_datasets):
+        for curr_folder in (source_folders_arr):
+            for key in (class_dict):
+                get_frame(path_vid + source_dst + '/' + curr_folder + '/' + key + ext, 'dataset/images/', frames_per_video, all_labels, class_dict[key])
 
-        labels_txt.close()
+    all_labels.close()
 
 main()
