@@ -71,7 +71,7 @@ class TrashbeanDataset(data.Dataset): # data.Dataset https://pytorch.org/docs/st
         if i is None:
             raise NotImplementedError("Only int type is supported for get the item. None is not allowed")
         
-        im_path, im_label = self.data.iloc[i]['path'], self.data.iloc[i].label
+        im_path, im_label = self.data.iloc[i]['image'], self.data.iloc[i].label
         im = Image.open(im_path)        # Handle image with Image module from Pillow https://pillow.readthedocs.io/en/stable/reference/Image.html
         if self.transform is not None:
             im = self.transform(im)

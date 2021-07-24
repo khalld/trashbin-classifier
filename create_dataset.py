@@ -7,9 +7,11 @@ from zipfile import ZipFile
 import os
 from os.path import basename
 
+# contatore delle immagini totali del dataset
 img_counter = 0
 
 def get_frame(path, new_path_img, n_frames, labels_txt, dst_class):
+    """ Estrae frame da un video e scrive su labels_txt (label, classe_appartenenza) """
     global img_counter
 
     video = cv2.VideoCapture(path)
@@ -34,7 +36,7 @@ def get_frame(path, new_path_img, n_frames, labels_txt, dst_class):
     return True
 
 def main():
-    """ Create image from videos and get the label """
+    """ Estrazione immagini da video e creazione del file 'all_labels.txt' """
     class_dict = {
         "empty": 0,
         "half": 1,
@@ -60,9 +62,11 @@ def main():
     all_labels.close()
     
 
+    """ Creazione zip file da caricare su google drive """
+
     zf = ZipFile('dataset/images.zip', "w")
     zf.write('dataset/all_labels.txt')
-    for dirname, subdirs, files in os.walk("dataset/images"):
+    for dirname, subdirs, files in os.walk('dataset/images'):
         zf.write(dirname)
         for filename in files:
             zf.write(os.path.join(dirname, filename))
