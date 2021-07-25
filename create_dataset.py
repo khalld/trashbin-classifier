@@ -43,8 +43,7 @@ def main():
         "full": 2
     }
 
-    source_folders_arr = ["01", "02", "03"]
-    source_type_datasets = ["test", "training", "validation"]
+    source_folders_arr = ["01", "02", "03", "04", "05", "06", "07", "08", "09"]
 
     path_vid = 'dataset/videos/'
     ext = '.mp4'
@@ -55,10 +54,9 @@ def main():
     all_labels = open('dataset/all_labels.txt', 'a')
     all_labels.truncate(0)
 
-    for source_dst in (source_type_datasets):
-        for curr_folder in (source_folders_arr):
-            for key in (class_dict):
-                get_frame(path_vid + source_dst + '/' + curr_folder + '/' + key + ext, 'dataset/images/', frames_per_video, all_labels, class_dict[key])
+    for curr_folder in (source_folders_arr):
+        for key in (class_dict):
+            get_frame(path_vid + '/' + curr_folder + '/' + key + ext, 'dataset/images/', frames_per_video, all_labels, class_dict[key])
     all_labels.close()
     
 
