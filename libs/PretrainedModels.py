@@ -97,7 +97,22 @@ class CPAlexNet(PretrainedModel):
 # ConcreteProduct3
 class CPVgg16(PretrainedModel):
     def get_model(self, output_class: int = 3):
+
+        # load pretrained weights from a network trained on large dataset 
         model = vgg16(pretrained=True)
-        model.classifier[6] = nn.Linear(4096, output_class)
+
+        # initially freeze all the models weights
+        for param in model.parameters():
+            param.requires_grad = False
+
+        # add custom classifier
+        #model.classifier[6] = nn.Linear(4096, output_class)
+
+        model.classifier[6] = nn.Sequential(
+                                nn.Linear(4096, 256),
+                                nn.SiLU(),  # better than reLu
+                                nn.Dropout(0.4),    # effective technique for regularization and preventing the co-adaptation of neurons
+                                nn.Linear(256, output_class)
+                            )
 
         return model

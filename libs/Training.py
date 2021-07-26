@@ -28,16 +28,14 @@ class AverageValueMeter():
         except:
             return None
 
-def trainval_test(loader: TDContainer):
-    print(loader)
-    print(loader.training_loader, type(loader.training_loader))
-    print(loader.test_loader, type(loader.test_loader))
-    print(loader.validation_loader, type(loader.validation_loader))
-
-def trainval_classifier(model, dst_container: TDContainer, model_name='experiment', lr: float=0.01, epochs: int=10, momentum: float=0.99, logdir: str='logs', model_dir: str='models', train_from_epoch: int=0, save_on_runtime: bool=False, save_each_iter: int=20):
+def trainval_classifier(model, dst_container: TDContainer, model_name='experiment',
+                        lr: float=0.01, epochs: int=10, momentum: float=0.99,
+                        logdir: str='logs', model_dir: str='models', train_from_epoch: int=0,
+                        save_on_runtime: bool=False, save_each_iter: int=20):
+    
     timer_start = time.time()    
     criterion = nn.CrossEntropyLoss() # used for classification https://pytorch.org/docs/stable/generated/torch.nn.CrossEntropyLoss.html
-    optimizer = SGD(model.parameters(), lr, momentum=momentum)
+    optimizer = SGD(model.parameters(), lr=lr, momentum=momentum)
 
     # meters
     loss_meter = AverageValueMeter()
@@ -93,7 +91,7 @@ def trainval_classifier(model, dst_container: TDContainer, model_name='experimen
                 writer.add_scalar('loss/' + mode, loss_meter.value(), global_step=global_step)
                 writer.add_scalar('accuracy/' + mode, acc_meter.value(), global_step=global_step)
 
-        print("\n\n", (e+1), loss_meter.value(), acc_meter.value() )
+        print("\n\n", "Epoch:", (e+1), "loss: ", loss_meter.value(), " accuracy: ", acc_meter.value() )
 
         # conserviamo i pesi del modello alla fine di un ciclo di training e test..
         # ...sul runtime
