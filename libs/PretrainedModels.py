@@ -90,7 +90,19 @@ class CPSqueezeNet(PretrainedModel):
 class CPAlexNet(PretrainedModel):
     def get_model(self, output_class: int = 3):
         model = alexnet(pretrained=True)
-        model.classifier[6] = nn.Linear(4096, output_class) # https://pytorch.org/tutorials/beginner/finetuning_torchvision_models_tutorial.html
+
+        for param in model.parameters():
+            param.requires_grad = False
+
+        ## model.classifier[6] = nn.Linear(4096, output_class) # https://pytorch.org/tutorials/beginner/finetuning_torchvision_models_tutorial.html
+
+        model.classifier[6] = nn.Sequential(
+                        nn.Linear(4096, 256),
+                        nn.SiLU(),  # better than reLu
+                        nn.Dropout(0.4),    # effective technique for regularization and preventing the co-adaptation of neurons
+                        nn.Linear(256, output_class)
+                    )
+
 
         return model
 
