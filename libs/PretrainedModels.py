@@ -106,8 +106,8 @@ class CPVgg16(PretrainedModel):
             param.requires_grad = False
 
         # add custom classifier
-        #model.classifier[6] = nn.Linear(4096, output_class)
-
+        # model.classifier[6] = nn.Linear(4096, output_class)
+        # by default requires_grad = True
         model.classifier[6] = nn.Sequential(
                                 nn.Linear(4096, 256),
                                 nn.SiLU(),  # better than reLu
