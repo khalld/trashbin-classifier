@@ -1,4 +1,5 @@
-from TrashbeanDataset import TrashbeanDataset
+## from libs.TrashbeanDataset import TrashbeanDataset ## run local
+from TrashbeanDataset import TrashbeanDataset ## run colab
 from torch.utils.data import DataLoader
 
 class TDContainer:

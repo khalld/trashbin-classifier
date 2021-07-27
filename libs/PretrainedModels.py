@@ -2,7 +2,8 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
 
-from TDContainer import TDContainer 
+## from libs.TDContainer import TDContainer  ## run local
+from TDContainer import TDContainer ## run colab
 
 import torch
 from torch import nn    # basic building-blocks for graphs https://pytorch.org/docs/stable/nn.html
@@ -24,6 +25,16 @@ class PretrainedModelsCreator(ABC):
         """No default implementation needed"""
         pass
 
+    def initialize_model(self, output_class: int = 2):
+        """
+            Nasce dalla necessità che a livello di GUI non devo inizializzare nessun dataset né dataLoader ma semplicemente devo scaricare il modello
+        """
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        product = self.factory_method()
+        self.model = product.get_model(output_class)
+
+        return True
+
     def initialize_dst(self, dataset: TDContainer, output_class: int = 2, batch_size: int=32, num_workers: int=2, drop_last: bool=False) -> None:
         """The Creator's primary responsibility is not creating products. Usually, it contains 
         some core business logic that relies on Product objects, returned by the factory method.
@@ -32,8 +43,7 @@ class PretrainedModelsCreator(ABC):
 
         # implementa nel modulo
         # use cpu if is possible
-        #self.device = "cuda" if torch.cuda.is_available() else "cpu"
-        
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"        
         # call factory method to create a Product object
         product = self.factory_method()
         # get the model from product
@@ -45,13 +55,27 @@ class PretrainedModelsCreator(ABC):
 
     def load_model(self, path: str) -> None:
         print("Loading model using load_state_dict..")
-        self.model.load_state_dict(torch.load(path))
+        if (self.device == "cpu"):
+            self.model.load_state_dict(torch.load(path, map_location=torch.device('cpu'))) # su colab c'è la cpu qui no! quindi se lo alleno sulla gpu devo cambiarlo
+        else:
+            self.model.load_state_dict(torch.load(path)) 
 
     def get_info(self) -> None:
-        print("Information about model:\n", self.model)
+        print("Information about model", self.model)
 
-    def get_parameter(self) -> None:
-        print("Print parameter function todo....")
+    def get_state_dict(self) -> None:
+        print("Model's state_dict:")
+        for param_tensor in self.model.state_dict():
+            print(param_tensor, "\t", self.model.state_dict()[param_tensor].size())
+
+    def get_parameters(self) -> None:
+        print("Print parameter")
+        for name, param in self.model.named_parameters():
+            if param.requires_grad:
+                print("name", name, "param", param.data)
+
+    def return_model(self):
+        return self.model
 
 """ Concrete Creators override the factory method in order to change the resulting product's type. """
 # ConcreteCreator1 

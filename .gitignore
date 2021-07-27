@@ -5,11 +5,14 @@ logs
 
 /static/
 **/dataset/**
+**/trained_models/**
+**/flagged/**
 
 **/data/**
 **/fashion/**
 **/8scenes/**
-*.pth
+**/other/**
+.pth ## per salvataggio di 1 modello
 **/mnist/**
 
 # Byte-compiled / optimized / DLL files
