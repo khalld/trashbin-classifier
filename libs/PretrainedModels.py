@@ -115,7 +115,7 @@ class CPAlexNet_v2(PretrainedModel):
         model = alexnet(pretrained=True)
 
         for param in model.parameters():
-            param.requures_grad = False
+            param.requires_grad = False
 
         model.classifier[6] = nn.Sequential(
                             nn.Linear(4096, 256),
