@@ -123,6 +123,8 @@ class CPAlexNet_v2(PretrainedModel):
                             nn.AlphaDropout(0.4),
                             nn.Linear(256, output_class)
                         )
+        
+        return model
 
 # ConcreteProduct3
 class CPVgg16(PretrainedModel):
