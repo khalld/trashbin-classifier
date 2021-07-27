@@ -64,6 +64,10 @@ class CCAlexNet(PretrainedModelsCreator):
     def factory_method(self) -> PretrainedModel:
         return CPAlexNet()
 
+class CCAlexNet_v2(PretrainedModelsCreator):
+    def factory_method(self):
+        return CPAlexNet_v2()
+
 # ConcreteCreator3
 class CCVgg16(PretrainedModelsCreator):
     def factory_method(self) -> PretrainedModel:
@@ -105,6 +109,20 @@ class CPAlexNet(PretrainedModel):
 
 
         return model
+
+class CPAlexNet_v2(PretrainedModel):
+    def get_model(self, output_class: int = 3):
+        model = alexnet(pretrained=True)
+
+        for param in model.parameters():
+            param.requures_grad = False
+
+        model.classifier[6] = nn.Sequential(
+                            nn.Linear(4096, 256),
+                            nn.SELU(),
+                            nn.AlphaDropout(0.4),
+                            nn.Linear(256, output_class)
+                        )
 
 # ConcreteProduct3
 class CPVgg16(PretrainedModel):
