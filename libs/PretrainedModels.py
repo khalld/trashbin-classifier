@@ -143,8 +143,10 @@ class CPAlexNet_v2(PretrainedModel):
 
         model.classifier[6] = nn.Sequential(
                             nn.Linear(4096, 256),
-                            nn.SELU(),
-                            nn.AlphaDropout(0.4),
+                            # add batch normalization
+                            nn.BatchNorm1d(256),
+                            nn.SiLU(),
+                            nn.Dropout(0.4),
                             nn.Linear(256, output_class)
                         )
         
