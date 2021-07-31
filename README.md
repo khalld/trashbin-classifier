@@ -19,3 +19,19 @@ Per colab
 %load_ext tensorboard # carico tensorboard su colab
 %tensorboard --logdir logs
 ```
+
+Runnare il venv
+
+# Setup docker
+
+Per salvare le dipendenze del virtual environment
+
+`pip freeze > requirements.txt`
+
+Nella root (buildare)
+
+`docker build -t app .`
+
+Run del container
+
+`docker run app`
