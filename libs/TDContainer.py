@@ -1,17 +1,17 @@
-## from libs.TrashbeanDataset import TrashbeanDataset ## run local
-from TrashbeanDataset import TrashbeanDataset ## run colab
+from libs.TrashbinDataset import TrashbinDataset ## run local
+# from TrashbinDataset import TrashbinDataset ## run colab
 from torch.utils.data import DataLoader
 
 class TDContainer:
     """ Class that contains the dataset for training, validation and test
         Attributes
         ----------
-        self.training, self.validation, self.test are the TrashbeanDataset object
-        self.training_loader, self.validation_loader, self.test_loader are DataLoader of the correspective TrashbeanDataset
+        self.training, self.validation, self.test are the TrashbinDataset object
+        self.training_loader, self.validation_loader, self.test_loader are DataLoader of the correspective TrashbinDataset
     """
 
     def __init__(self, training=None, validation=None, test=None):
-        """ Constructor of the class. Instantiate an Trashbean dataset for each dataset
+        """ Constructor of the class. Instantiate an TrashbinDataset dataset for each dataset
 
             Parameters
             ----------
@@ -34,9 +34,9 @@ class TDContainer:
         if training['path'] is None or validation['path'] is None or test['path'] is None or isinstance(training['path'], str) is False or isinstance(validation['path'], str) is False or isinstance(test['path'], str) is False:
             raise NotImplementedError("Path file is required and need to be a str type.")
 
-        self.training = TrashbeanDataset(training['path'], transform=training['transform'])
-        self.validation = TrashbeanDataset(validation['path'], transform=validation['transform'])
-        self.test = TrashbeanDataset(test['path'], transform=test['transform'])
+        self.training = TrashbinDataset(training['path'], transform=training['transform'])
+        self.validation = TrashbinDataset(validation['path'], transform=validation['transform'])
+        self.test = TrashbinDataset(test['path'], transform=test['transform'])
         self.hasDl = False
 
     def create_data_loader(self, batch_size=32, num_workers=2, drop_last=False):

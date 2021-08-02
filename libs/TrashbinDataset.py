@@ -4,12 +4,12 @@ from PIL import Image
 import numpy as np
 import pandas as pd
 
-class TrashbeanDataset(data.Dataset): # data.Dataset https://pytorch.org/docs/stable/_modules/torch/utils/data/dataset.html#Dataset
+class TrashbinDataset(data.Dataset): # data.Dataset https://pytorch.org/docs/stable/_modules/torch/utils/data/dataset.html#Dataset
     """ A map-style dataset class used to manipulate a dataset composed by:
-        image path of trashbean and associated label that describe the available capacity of the trashbean
-            0 : empty trashbean
-            1 : half trashbean
-            2 : full trashbean
+        image path of trashbin and associated label that describe the available capacity of the trashbin
+            0 : empty trashbin
+            1 : half trashbin
+            2 : full trashbin
 
         Attributes
         ----------

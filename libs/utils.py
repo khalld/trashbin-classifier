@@ -1,5 +1,5 @@
 from os.path import join
-from TDContainer import TDContainer
+from libs.TDContainer import TDContainer
 from sklearn.model_selection import train_test_split
 
 def get_model_name(model_name, version):

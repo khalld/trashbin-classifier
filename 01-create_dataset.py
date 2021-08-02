@@ -43,13 +43,13 @@ def main():
         "full": 2
     }
 
-    source_folders_arr = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"]
+    source_folders_arr = ["01", "02", "03", "04", "05", "06", "07", "08", "09"]
 
     path_vid = 'dataset/videos/'
     ext = '.mp4'
 
     # n di frame per video
-    frames_per_video = 300
+    frames_per_video = 250
 
     all_labels = open('dataset/all_labels.txt', 'a')
     all_labels.truncate(0)

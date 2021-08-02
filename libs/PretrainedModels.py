@@ -9,10 +9,9 @@ import torch
 from torch import nn    # basic building-blocks for graphs https://pytorch.org/docs/stable/nn.html
 
 # *** torchvision pretrained models https://pytorch.org/vision/stable/models.html ***
-from torchvision.models import squeezenet1_0
 from torchvision.models import alexnet
 from torchvision.models import vgg16
-
+from torchvision.models import mobilenet_v2
 
 # Creator
 class PretrainedModelsCreator(ABC):
@@ -78,12 +77,7 @@ class PretrainedModelsCreator(ABC):
         return self.model
 
 """ Concrete Creators override the factory method in order to change the resulting product's type. """
-# ConcreteCreator1 
-class CCSqueezeNet(PretrainedModelsCreator):
-    def factory_method(self) -> PretrainedModel:
-        return CPSqueezeNet()
 
-# ConcreteCreator2
 class CCAlexNet(PretrainedModelsCreator):
     def factory_method(self) -> PretrainedModel:
         return CPAlexNet()
@@ -92,10 +86,13 @@ class CCAlexNet_v2(PretrainedModelsCreator):
     def factory_method(self):
         return CPAlexNet_v2()
 
-# ConcreteCreator3
 class CCVgg16(PretrainedModelsCreator):
     def factory_method(self) -> PretrainedModel:
         return CPVgg16()
+
+class CCMobileNetV2(PretrainedModelsCreator):
+    def factory_method(self) -> PretrainedModel:
+        return CPMobileNetV2()
 
 """Product"""
 class PretrainedModel(ABC):
@@ -106,15 +103,7 @@ class PretrainedModel(ABC):
         pass
 
 """Concrete Products provide various implementations of the Product interface."""
-# ConcreteProduct1
-class CPSqueezeNet(PretrainedModel):
-    def get_model(self, output_class: int = 3):
-        model = squeezenet1_0(pretrained=True)
-        model.classifier[1] = nn.Conv2d(512, output_class, kernel_size=(1,1), stride=(1,1))
 
-        return model
-    
-# ConcreteProduct2
 class CPAlexNet(PretrainedModel):
     def get_model(self, output_class: int = 3):
         model = alexnet(pretrained=True)
@@ -152,7 +141,6 @@ class CPAlexNet_v2(PretrainedModel):
         
         return model
 
-# ConcreteProduct3
 class CPVgg16(PretrainedModel):
     def get_model(self, output_class: int = 3):
 
@@ -171,6 +159,22 @@ class CPVgg16(PretrainedModel):
                                 nn.SiLU(),  # better than reLu
                                 nn.Dropout(0.4),    # effective technique for regularization and preventing the co-adaptation of neurons
                                 nn.Linear(256, output_class)
+                            )
+
+        return model
+
+class CPMobileNetV2(PretrainedModel):
+    def get_model(self, output_class: int = 3):
+        model = mobilenet_v2(pretrained=True)
+
+        # initialy freeze all the models weights
+        for param in model.parameters():
+            param.requires_grad = False
+
+        # add custom classifier
+        model.classifier = nn.Sequential(
+                                nn.Dropout(p=0.2, inplace=False),   # resta uguale
+                                nn.Linear(in_features=1280, out_features=output_class, bias=True)
                             )
 
         return model
