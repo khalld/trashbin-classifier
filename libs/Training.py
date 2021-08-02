@@ -108,6 +108,7 @@ def trainval_classifier(model, dst_container: TDContainer, model_name='experimen
             torch.save(model.state_dict(), modeldir + '/%s-%d.pth'%(model_name, (e+1) + train_from_epoch ) )
 
     timer_end = time.time()
+    logs_txt_file.close()
     print("\nEnded in: ", ((timer_end - timer_start) / 60 ), "minutes" )
     return model
 
