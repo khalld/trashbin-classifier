@@ -21,7 +21,7 @@ def train(  creator: PretrainedModelsCreator, model_name: str,
     creator.initialize_dst(dataset, output_class, batch_size=batch_size, num_workers=num_workers, drop_last=drop_last)
     print("\n")
     print('*** Starting procedure ***')
-    model_finetuned = trainval_classifier(model=creator.model, dst_container=dataset, model_name=model_name, lr=lr, epochs=epochs, momentum=momentum, logdir=logdir, modeldir=modeldir, train_from_epoch=train_from_epoch, save_on_runtime=save_on_runtime, save_each_iter=save_each_iter)
+    model_finetuned = trainval_classifier(model=creator.model, dst_container=dataset, model_name=model_name, lr=lr, epochs=epochs, momentum=momentum, logdir=logdir, modeldir=modeldir, train_from_epoch=train_from_epoch, save_on_runtime=save_on_runtime, save_each_iter=save_each_iter, logs_txt=True)
     print("\n")
     print("**** Start to calculate accuracy ...")
     model_finetuned_predictions_test, dataset_labels_test = test_classifier(model_finetuned, dataset.test_loader)
@@ -78,6 +78,6 @@ if __name__ == "__main__":
     # test 1 epoca con VGG16
 
     
-    train(creator=CCMobileNetV2(), model_name=get_model_name(model_name="MobileNetV2", version="1", lr="0.001"), dataset=dataset_v1, output_class=3, batch_size=64, num_workers=2, drop_last=False, lr=0.001, epochs=10, save_each_iter=2)
+    # train(creator=CCMobileNetV2(), model_name=get_model_name(model_name="MobileNetV2", version="1", lr="0.001"), dataset=dataset_v1, output_class=3, batch_size=64, num_workers=2, drop_last=False, lr=0.001, epochs=10, save_each_iter=2)
 
     ## fai lo stesso con le altre 2 stesso lr e cose differenti

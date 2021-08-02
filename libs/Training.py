@@ -31,7 +31,7 @@ class AverageValueMeter():
 def trainval_classifier(model, dst_container: TDContainer, model_name='experiment',
                         lr: float=0.01, epochs: int=10, momentum: float=0.99,
                         logdir: str='logs', modeldir: str='models', train_from_epoch: int=0,
-                        save_on_runtime: bool=False, save_each_iter: int=20):
+                        save_on_runtime: bool=False, save_each_iter: int=20, logs_txt: bool=False):
     
     timer_start = time.time()    
     criterion = nn.CrossEntropyLoss() # used for classification https://pytorch.org/docs/stable/generated/torch.nn.CrossEntropyLoss.html
@@ -43,6 +43,10 @@ def trainval_classifier(model, dst_container: TDContainer, model_name='experimen
 
     # writer
     writer = SummaryWriter(join(logdir, model_name))
+
+    if logs_txt is True:
+        logs_txt_file = open(join(logdir, model_name + '/terminal_logs.txt'), 'a')
+        logs_txt_file.write("\nEpoch:")
 
     # device
     device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -91,7 +95,9 @@ def trainval_classifier(model, dst_container: TDContainer, model_name='experimen
                 writer.add_scalar('loss/' + mode, loss_meter.value(), global_step=global_step)
                 writer.add_scalar('accuracy/' + mode, acc_meter.value(), global_step=global_step)
 
-        print("\n\n", "Epoch:", (e+1), "loss: ", loss_meter.value(), " accuracy: ", acc_meter.value() )
+        # print("\n\n", "Epoch:", (e+1), "loss: ", loss_meter.value(), " accuracy: ", acc_meter.value() )
+        if logs_txt is True:
+            logs_txt_file.write("\nEpoch:", (e+1), "loss: ", loss_meter.value(), " accuracy: ", acc_meter.value())
 
         # conserviamo i pesi del modello alla fine di un ciclo di training e test..
         # ...sul runtime
