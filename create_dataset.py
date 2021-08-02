@@ -28,8 +28,8 @@ def get_frame(path, new_path_img, n_frames, labels_txt, dst_class):
         if ret == False:
             break
 
-        labels_txt.write('trashbean_%d.jpg, %d\n' %(img_counter, dst_class))
-        cv2.imwrite(new_path_img + 'trashbean_' + str(img_counter) + '.jpg', frame )
+        labels_txt.write('trashbin_%d.jpg, %d\n' %(img_counter, dst_class))
+        cv2.imwrite(new_path_img + 'trashbin_' + str(img_counter) + '.jpg', frame )
         img_counter = img_counter + 1
 
     video.release()
@@ -43,7 +43,7 @@ def main():
         "full": 2
     }
 
-    source_folders_arr = ["01", "02", "03", "04", "05", "06", "07", "08", "09"]
+    source_folders_arr = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"]
 
     path_vid = 'dataset/videos/'
     ext = '.mp4'
