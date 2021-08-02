@@ -96,7 +96,7 @@ def trainval_classifier(model, dst_container: TDContainer, model_name='experimen
 
         # print("\n\n", "Epoch:", (e+1), "loss: ", loss_meter.value(), " accuracy: ", acc_meter.value() )
         if logs_txt is True:
-            logs_txt_file.write("\nEpoch:", (e+1), "loss: ", loss_meter.value(), " accuracy: ", acc_meter.value())
+            logs_txt_file.write("\nEpoch:" + (e+1) + "loss: " + loss_meter.value() + " accuracy: " + acc_meter.value())
 
         # conserviamo i pesi del modello alla fine di un ciclo di training e test..
         # ...sul runtime
