@@ -7,7 +7,7 @@ import torch
 from torch import nn    # basic building-blocks for graphs https://pytorch.org/docs/stable/nn.html
 from torch.optim import SGD
 from torch.utils.tensorboard import SummaryWriter
-from TDContainer import TDContainer
+from libs.TDContainer import TDContainer
 
 class AverageValueMeter():
     """ Calculate"""
@@ -30,7 +30,7 @@ class AverageValueMeter():
 
 def trainval_classifier(model, dst_container: TDContainer, model_name='experiment',
                         lr: float=0.01, epochs: int=10, momentum: float=0.99,
-                        logdir: str='logs', model_dir: str='models', train_from_epoch: int=0,
+                        logdir: str='logs', modeldir: str='models', train_from_epoch: int=0,
                         save_on_runtime: bool=False, save_each_iter: int=20):
     
     timer_start = time.time()    
@@ -100,7 +100,7 @@ def trainval_classifier(model, dst_container: TDContainer, model_name='experimen
 
         # ...ogni save_each_iter salvo il modello sul drive per evitare problemi di spazio su Gdrive
         if ((e+1) % save_each_iter == 0 or (e+1) % 50 == 0):
-            torch.save(model.state_dict(), model_dir + '%s-%d.pth'%(model_name, (e+1) + train_from_epoch ) )
+            torch.save(model.state_dict(), modeldir + '%s-%d.pth'%(model_name, (e+1) + train_from_epoch ) )
 
     timer_end = time.time()
     print("\nEnded in: ", ((timer_end - timer_start) / 60 ), "minutes" )

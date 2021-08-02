@@ -2,8 +2,8 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
 
-## from libs.TDContainer import TDContainer  ## run local
-from TDContainer import TDContainer ## run colab
+from libs.TDContainer import TDContainer  ## run local
+# from TDContainer import TDContainer ## run colab
 
 import torch
 from torch import nn    # basic building-blocks for graphs https://pytorch.org/docs/stable/nn.html
