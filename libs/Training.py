@@ -46,7 +46,6 @@ def trainval_classifier(model, dst_container: TDContainer, model_name='experimen
 
     if logs_txt is True:
         logs_txt_file = open(join(logdir, model_name + '/terminal_logs.txt'), 'a')
-        logs_txt_file.write("\nEpoch:")
 
     # device
     device = "cuda" if torch.cuda.is_available() else "cpu"
