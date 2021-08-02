@@ -75,9 +75,15 @@ if __name__ == "__main__":
     # check corretto caricamento dataset
     # dataset_v1.show_info()
 
-    # test 1 epoca con VGG16
+    # faccio un SCRIVI PROCEDURA TECNICA COME SI CHIAMA CHE HAI LETTO NEL LIBRO PER CERCARE IL MIGLIOR LEARNING RATE PER 10 EPOCHE ANCHE SE SONO POCHE, VEDIAMO LA DIFFERENZA TRA I MODELLI
+    # DATI I COSTI COMPUTAZIONALI MOLTO LUNGHI
 
-    
     # train(creator=CCMobileNetV2(), model_name=get_model_name(model_name="MobileNetV2", version="1", lr="0.001"), dataset=dataset_v1, output_class=3, batch_size=64, num_workers=2, drop_last=False, lr=0.001, epochs=10, save_each_iter=2)
+    train(creator=CCMobileNetV2(), model_name=get_model_name(model_name="MobileNetV2", version="2", lr="0.01"), dataset=dataset_v1, output_class=3, batch_size=64, num_workers=2, drop_last=False, lr=0.01, epochs=10, save_each_iter=2)
 
-    ## fai lo stesso con le altre 2 stesso lr e cose differenti
+    train(creator=CCAlexNet(), model_name=get_model_name(model_name="CCAlexNet", version="1", lr="0.001"), dataset=dataset_v1, output_class=3, batch_size=64, num_workers=2, drop_last=False, lr=0.001, epochs=10, save_each_iter=2)
+    train(creator=CCAlexNet(), model_name=get_model_name(model_name="CCAlexNet", version="2", lr="0.01"), dataset=dataset_v1, output_class=3, batch_size=64, num_workers=2, drop_last=False, lr=0.01, epochs=10, save_each_iter=2)
+
+    train(creator=CCVgg16(), model_name=get_model_name(model_name="CCVgg16", version="1", lr="0.001"), dataset=dataset_v1, output_class=3, batch_size=64, num_workers=2, drop_last=False, lr=0.001, epochs=10, save_each_iter=2)
+    train(creator=CCVgg16(), model_name=get_model_name(model_name="CCVgg16", version="2", lr="0.01"), dataset=dataset_v1, output_class=3, batch_size=64, num_workers=2, drop_last=False, lr=0.01, epochs=10, save_each_iter=2)
+
