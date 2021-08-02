@@ -19,10 +19,13 @@ def train(  creator: PretrainedModelsCreator, model_name: str,
 
     print('*** Instantiating %s' % (model_name))
     creator.initialize_dst(dataset, output_class, batch_size=batch_size, num_workers=num_workers, drop_last=drop_last)
+    print("\n")
     print('*** Starting procedure ***')
     model_finetuned = trainval_classifier(model=creator.model, dst_container=dataset, model_name=model_name, lr=lr, epochs=epochs, momentum=momentum, logdir=logdir, modeldir=modeldir, train_from_epoch=train_from_epoch, save_on_runtime=save_on_runtime, save_each_iter=save_each_iter)
+    print("\n")
     print("**** Start to calculate accuracy ...")
     model_finetuned_predictions_test, dataset_labels_test = test_classifier(model_finetuned, dataset.test_loader)
+    print("\n")
     print("**** Accuracy of %s %0.2f%%" % (model_name, accuracy_score(dataset_labels_test, model_finetuned_predictions_test)*100) )
     print('**** Ended %s' % (model_name))
 
@@ -44,7 +47,7 @@ def train(  creator: PretrainedModelsCreator, model_name: str,
 #     model_finetuned_predictions_test, dataset_labels_test = test_classifier(model_finetuned, dataset.test_loader)
 #     print("**** Accuracy of %s %0.2f%%" % (model_name, accuracy_score(dataset_labels_test, model_finetuned_predictions_test)*100) )
 
-def main():
+if __name__ == "__main__":   
     random.seed(1996)
     np.random.seed(1996)
 
@@ -74,6 +77,4 @@ def main():
 
     # test 1 epoca con VGG16
     
-    train(creator=CCMobileNetV2(), model_name=get_model_name(model_name="MobileNetV2", version="1", lr="0.01"), dataset=dataset_v1, output_class=3, batch_size=64, num_workers=2, drop_last=False, lr=0.01, epochs=1, save_each_iter=1 )
-
-main()
+    train(creator=CCMobileNetV2(), model_name=get_model_name(model_name="MobileNetV2", version="1", lr=0.1), dataset=dataset_v1, output_class=3, batch_size=64, num_workers=2, drop_last=False, lr=0.01, epochs=1, save_each_iter=1 )

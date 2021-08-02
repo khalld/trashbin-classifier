@@ -3,7 +3,7 @@ from libs.TDContainer import TDContainer
 from sklearn.model_selection import train_test_split
 
 def get_model_name(model_name, version, lr):
-    return "%s__v%s_lr=%s" % (model_name, version, lr)
+    return "%s__v%s_lr=%f" % (model_name, version, lr)
 
 def import_dataset(path_dst: str, train_transform, test_transform):
     dst_train = {

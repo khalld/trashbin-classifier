@@ -55,7 +55,7 @@ def trainval_classifier(model, dst_container: TDContainer, model_name='experimen
     }
     global_step = 0
     for e in range(epochs):
-        print ("\rComputed: %d/%d" % ( e+1,  epochs), end="") # \r allow to make carriage returns
+        print ("\rCurrent computing: %d/%d" % ( e+1,  epochs), end="") # \r allow to make carriage returns
         ## print ("\rComputed: %d/%d, current: loss: %s accuracy: %s" % ( e+1,  epochs, loss_meter.value(), acc_meter.value()), end="") # \r allow to make carriage returns
         # iteriamo tra due modalità: train e test
         for mode in ['train', 'validation']:
@@ -100,7 +100,7 @@ def trainval_classifier(model, dst_container: TDContainer, model_name='experimen
 
         # ...ogni save_each_iter salvo il modello sul drive per evitare problemi di spazio su Gdrive
         if ((e+1) % save_each_iter == 0 or (e+1) % 50 == 0):
-            torch.save(model.state_dict(), modeldir + '%s-%d.pth'%(model_name, (e+1) + train_from_epoch ) )
+            torch.save(model.state_dict(), modeldir + '/%s-%d.pth'%(model_name, (e+1) + train_from_epoch ) )
 
     timer_end = time.time()
     print("\nEnded in: ", ((timer_end - timer_start) / 60 ), "minutes" )
