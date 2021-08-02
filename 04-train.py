@@ -76,5 +76,8 @@ if __name__ == "__main__":
     # dataset_v1.show_info()
 
     # test 1 epoca con VGG16
+
     
-    train(creator=CCMobileNetV2(), model_name=get_model_name(model_name="MobileNetV2", version="1", lr=0.1), dataset=dataset_v1, output_class=3, batch_size=64, num_workers=2, drop_last=False, lr=0.01, epochs=1, save_each_iter=1 )
+    train(creator=CCMobileNetV2(), model_name=get_model_name(model_name="MobileNetV2", version="1", lr="0.001"), dataset=dataset_v1, output_class=3, batch_size=64, num_workers=2, drop_last=False, lr=0.001, epochs=10, save_each_iter=2)
+
+    ## fai lo stesso con le altre 2 stesso lr e cose differenti

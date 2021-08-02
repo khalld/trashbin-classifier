@@ -10,7 +10,6 @@ models/**
 **/flagged/**
 **/data/**
 **/other/**
-.pth ## per salvataggio di 1 modello
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
