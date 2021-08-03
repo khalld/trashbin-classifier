@@ -103,6 +103,14 @@ class PretrainedModel(ABC):
         pass
 
 """Concrete Products provide various implementations of the Product interface."""
+class CPAlexNet(PretrainedModel):
+    def get_model(self, output_class: int = 3):
+        model = alexnet(pretrained=True)
+
+        for param in model.parameters():
+            param.requires_grad = False
+
+        model.classifier[6] = nn.Linear(4096)
 
 class CPAlexNet(PretrainedModel):
     def get_model(self, output_class: int = 3):
@@ -111,34 +119,15 @@ class CPAlexNet(PretrainedModel):
         for param in model.parameters():
             param.requires_grad = False
 
-        ## model.classifier[6] = nn.Linear(4096, output_class) # https://pytorch.org/tutorials/beginner/finetuning_torchvision_models_tutorial.html
-
         model.classifier[6] = nn.Sequential(
                         nn.Linear(4096, 256),
                         nn.SiLU(),  # better than reLu
+                        ## dropout e applicato solitamente dopo la funzione di attivazione non lineare, in alcuni casi con la relu ha piu senso il contrario
                         nn.Dropout(0.4),    # effective technique for regularization and preventing the co-adaptation of neurons
                         nn.Linear(256, output_class)
                     )
 
 
-        return model
-
-class CPAlexNet_v2(PretrainedModel):
-    def get_model(self, output_class: int = 3):
-        model = alexnet(pretrained=True)
-
-        for param in model.parameters():
-            param.requires_grad = False
-
-        model.classifier[6] = nn.Sequential(
-                            nn.Linear(4096, 256),
-                            # add batch normalization
-                            nn.BatchNorm1d(256),
-                            nn.SiLU(),
-                            nn.Dropout(0.4),
-                            nn.Linear(256, output_class)
-                        )
-        
         return model
 
 class CPVgg16(PretrainedModel):

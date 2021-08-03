@@ -96,7 +96,7 @@ def trainval_classifier(model, dst_container: TDContainer, model_name='experimen
 
         # print("\n\n", "Epoch:", (e+1), "loss: ", loss_meter.value(), " accuracy: ", acc_meter.value() )
         if logs_txt is True:
-            logs_txt_file.write("\nEpoch:" + (e+1) + "loss: " + loss_meter.value() + " accuracy: " + acc_meter.value())
+            logs_txt_file.write("\nEpoch:" + str(e+1) + "loss: " + str(loss_meter.value()) + " accuracy: " + str(acc_meter.value()))
 
         # conserviamo i pesi del modello alla fine di un ciclo di training e test..
         # ...sul runtime
@@ -108,7 +108,11 @@ def trainval_classifier(model, dst_container: TDContainer, model_name='experimen
             torch.save(model.state_dict(), modeldir + '/%s-%d.pth'%(model_name, (e+1) + train_from_epoch ) )
 
     timer_end = time.time()
-    logs_txt_file.close()
+
+    if logs_txt is True:
+        logs_txt_file.write("\nEnded in: ", ((timer_end - timer_start) / 60 ), "minutes")
+        logs_txt_file.close()
+        
     print("\nEnded in: ", ((timer_end - timer_start) / 60 ), "minutes" )
     return model
 

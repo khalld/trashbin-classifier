@@ -2,8 +2,9 @@ from os.path import join
 from libs.TDContainer import TDContainer
 from sklearn.model_selection import train_test_split
 
-def get_model_name(model_name, version, lr):
-    return "%s__v%s_lr=%s" % (model_name, version, lr)
+def get_model_name(model_name, lr):
+    # tolto il version in quanto in model name va il nome dell cp ed eventualmente sarebbe diverso se fosse un'altra versione
+    return "%s__lr=%s" % (model_name, lr)
 
 def import_dataset(path_dst: str, train_transform, test_transform):
     dst_train = {
