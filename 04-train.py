@@ -124,10 +124,11 @@ if __name__ == "__main__":
     # cambio il dataset per fare generalizzare meglio il modello
 
     # in questo caso il LR e' uguale per vedere se ci sono differenze, lo chiamo
-    train(creator=CCAlexNet(), model_name=get_model_name(model_name="CCAlexNet", lr="0.001"), dataset=dataset_v2, output_class=3, batch_size=64, num_workers=2, drop_last=True, lr=0.001, epochs=10, save_each_iter=2,
-            loaded_model=join('models/CCAlexNet__lr=0.001', 'CCAlexNet__lr=0.001-10.pth'), train_from_epoch=10) # indicatore che e' stato precedentemente trainato
+    # leva i prefissi cc perché non ci sono nei nomi!!!!! e ri nomina i file
+    #train(creator=CCAlexNet(), model_name=get_model_name(model_name="CCAlexNet", lr="0.001"), dataset=dataset_v2, output_class=3, batch_size=64, num_workers=2, drop_last=True, lr=0.001, epochs=10, save_each_iter=2,
+    #        loaded_model=join('models/CCAlexNet__lr=0.001', 'CCAlexNet__lr=0.001-10.pth'), train_from_epoch=10) # indicatore che e' stato precedentemente trainato
 
-    train(creator=CCMobileNetV2(), model_name=get_model_name(model_name="CCMobileNetV2", lr="0.001"), dataset=dataset_v2, output_class=3, batch_size=64, num_workers=2, drop_last=True, lr=0.001, epochs=10, save_each_iter=2,
+    train(creator=CCMobileNetV2(), model_name=get_model_name(model_name="MobileNetV2", lr="0.001"), dataset=dataset_v2, output_class=3, batch_size=64, num_workers=2, drop_last=True, lr=0.001, epochs=10, save_each_iter=2,
         loaded_model=join('models/MobileNetV2__lr=0.001', 'MobileNetV2__lr=0.001-10.pth'), train_from_epoch=10) # indicatore che e' stato precedentemente trainato
 
 
@@ -136,5 +137,5 @@ if __name__ == "__main__":
     train(creator=CCAlexNet(), model_name=get_model_name(model_name="CCAlexNet", lr="0.0003"), dataset=dataset_v2, output_class=3, batch_size=64, num_workers=2, drop_last=True, lr=0.0003, epochs=10, save_each_iter=2,
             loaded_model=join('models/CCAlexNet__lr=0.001', 'CCAlexNet__lr=0.001-10.pth'), train_from_epoch=10) # indicatore che e' stato precedentemente trainato
 
-    train(creator=CCMobileNetV2(), model_name=get_model_name(model_name="CCMobileNetV2", lr="0.0003"), dataset=dataset_v2, output_class=3, batch_size=64, num_workers=2, drop_last=True, lr=0.0003, epochs=10, save_each_iter=2,
+    train(creator=CCMobileNetV2(), model_name=get_model_name(model_name="MobileNetV2", lr="0.0003"), dataset=dataset_v2, output_class=3, batch_size=64, num_workers=2, drop_last=True, lr=0.0003, epochs=10, save_each_iter=2,
         loaded_model=join('models/MobileNetV2__lr=0.001', 'MobileNetV2__lr=0.001-10.pth'), train_from_epoch=10) # indicatore che e' stato precedentemente trainato
