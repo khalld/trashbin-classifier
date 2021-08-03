@@ -110,7 +110,7 @@ def trainval_classifier(model, dst_container: TDContainer, model_name='experimen
     timer_end = time.time()
 
     if logs_txt is True:
-        logs_txt_file.write("\nEnded in: ", ((timer_end - timer_start) / 60 ), "minutes")
+        logs_txt_file.write("\nEnded in: " + str((timer_end - timer_start) / 60 ) + "minutes")
         logs_txt_file.close()
         
     print("\nEnded in: ", ((timer_end - timer_start) / 60 ), "minutes" )
