@@ -18,7 +18,8 @@ def test_model(  creator: PretrainedModelsCreator) -> None: #, model_name: str,
             # logdir='logs', modeldir='models', train_from_epoch: int=0, save_on_runtime: bool = False, save_each_iter: int=5) -> None:
 
     creator.initialize_model(3)
-    creator.get_info()
+    #creator.get_info()
+    print(creator.model)
 
 
 if __name__ == "__main__":   
