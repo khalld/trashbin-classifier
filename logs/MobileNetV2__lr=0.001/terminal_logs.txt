@@ -12,6 +12,3 @@ Epoch: 10 loss:  0.19218339765513384  accuracy:  0.922962962962963
 Ended in:  67.9498200337092 minutes
 
 **** Accuracy of MobileNetV2__v1_lr=0.001 93.88%
-
-
-
