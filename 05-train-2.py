@@ -1,0 +1,76 @@
+import random
+import numpy as np
+import pandas as pd
+from torchvision import transforms
+from os.path import join
+from PIL import Image
+import torch
+
+from libs.TrashbinDataset import TrashbinDataset
+from libs.TDContainer import TDContainer
+from libs.PretrainedModels import PretrainedModelsCreator, CCAlexNet, CCVgg16, CCMobileNetV2
+from libs.Training import AverageValueMeter, trainval_classifier, test_classifier, accuracy_score
+from libs.utils import get_model_name, import_dataset
+
+
+
+def train(  creator: PretrainedModelsCreator, model_name: str,
+            dataset: TDContainer, output_class: int, batch_size: int, num_workers: int, drop_last: bool, # parametri di initialize_dst
+            lr: float, epochs: int, momentum: float = 0.99,     # parametri di trainval_classifier
+            loaded_model: str='',
+            logdir='logs', modeldir='models', train_from_epoch: int=0, save_on_runtime: bool = False, save_each_iter: int=5, resume_global_step_from: int=0) -> None:
+
+    print('**** Instantiating %s' % (model_name))
+    creator.initialize_dst(dataset, output_class, batch_size=batch_size, num_workers=num_workers, drop_last=drop_last)
+
+    if len(loaded_model) >0:
+        print('**** Loading model')
+        creator.load_model(loaded_model)
+        
+        # da testare il funzionamento:
+        print('***** Calculating current accuracy *****')
+        model_finetuned_predictions_test, dataset_labels_test = test_classifier(creator.model, dataset.test_loader)
+        print("**** Current accuracy of %s %0.2f%%" % (model_name, accuracy_score(dataset_labels_test, model_finetuned_predictions_test)*100) )
+
+
+    print('**** Starting procedure ***')
+    model_finetuned = trainval_classifier(model=creator.model, dst_container=dataset, model_name=model_name, lr=lr, epochs=epochs, momentum=momentum, logdir=logdir, modeldir=modeldir, train_from_epoch=train_from_epoch, save_on_runtime=save_on_runtime, save_each_iter=save_each_iter, logs_txt=True,
+                                            resume_global_step_from=resume_global_step_from) ## nuovo parametro preso da tensorboard!!! è il numero di step
+    print("**** Start to calculate accuracy ...")
+    model_finetuned_predictions_test, dataset_labels_test = test_classifier(model_finetuned, dataset.test_loader)
+    print("**** Accuracy of %s %0.2f%%" % (model_name, accuracy_score(dataset_labels_test, model_finetuned_predictions_test)*100) )
+    print('**** Ended %s' % (model_name))
+
+
+
+if __name__ == "__main__":   
+    random.seed(1996)
+    np.random.seed(1996)
+
+
+    dataset_v1 = import_dataset('dataset', 
+        train_transform=transforms.Compose([
+            transforms.Resize(256),
+            transforms.AutoAugment(transforms.AutoAugmentPolicy.CIFAR10),
+            transforms.RandomCrop(224),
+            transforms.RandomHorizontalFlip(p=0.4),
+            transforms.RandomPerspective(p=0.3),
+            transforms.RandomVerticalFlip(p=0.4),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])     # default dev and std for pretrained models
+        ]),
+        test_transform=transforms.Compose([
+            transforms.Resize(256), 
+            transforms.CenterCrop(224), # crop centrale
+            transforms.AutoAugment(transforms.AutoAugmentPolicy.IMAGENET),
+            transforms.RandomHorizontalFlip(),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])     # default dev and std for pretrained models
+        ])
+    )
+
+    # con il modello scelto
+
+    # arriva a un tot di 50 epoche trained
+
+    # abilita i pesi freezati e fallo per altre 50 epoche
