@@ -57,7 +57,7 @@ class PretrainedModelsCreator(ABC):
         if (self.device == "cpu"):
             self.model.load_state_dict(torch.load(path, map_location=torch.device('cpu'))) # su colab c'è la cpu qui no! quindi se lo alleno sulla gpu devo cambiarlo
         else:
-            self.model.load_state_dict(torch.load(path)) 
+            self.model.load_state_dict(torch.load(path))
 
     def get_info(self) -> None:
         print("Information about model", self.model)
@@ -81,10 +81,6 @@ class PretrainedModelsCreator(ABC):
 class CCAlexNet(PretrainedModelsCreator):
     def factory_method(self) -> PretrainedModel:
         return CPAlexNet()
-
-class CCAlexNet_v2(PretrainedModelsCreator):
-    def factory_method(self):
-        return CPAlexNet_v2()
 
 class CCVgg16(PretrainedModelsCreator):
     def factory_method(self) -> PretrainedModel:

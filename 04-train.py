@@ -16,7 +16,7 @@ def train(  creator: PretrainedModelsCreator, model_name: str,
             dataset: TDContainer, output_class: int, batch_size: int, num_workers: int, drop_last: bool, # parametri di initialize_dst
             lr: float, epochs: int, momentum: float = 0.99,     # parametri di trainval_classifier
             loaded_model: str='',
-            logdir='logs', modeldir='models', train_from_epoch: int=0, save_on_runtime: bool = False, save_each_iter: int=5) -> None:
+            logdir='logs', modeldir='models', train_from_epoch: int=0, save_on_runtime: bool = False, save_each_iter: int=5, resume_global_step_from: int=0) -> None:
 
     print('**** Instantiating %s' % (model_name))
     creator.initialize_dst(dataset, output_class, batch_size=batch_size, num_workers=num_workers, drop_last=drop_last)
@@ -32,7 +32,8 @@ def train(  creator: PretrainedModelsCreator, model_name: str,
 
 
     print('**** Starting procedure ***')
-    model_finetuned = trainval_classifier(model=creator.model, dst_container=dataset, model_name=model_name, lr=lr, epochs=epochs, momentum=momentum, logdir=logdir, modeldir=modeldir, train_from_epoch=train_from_epoch, save_on_runtime=save_on_runtime, save_each_iter=save_each_iter, logs_txt=True)
+    model_finetuned = trainval_classifier(model=creator.model, dst_container=dataset, model_name=model_name, lr=lr, epochs=epochs, momentum=momentum, logdir=logdir, modeldir=modeldir, train_from_epoch=train_from_epoch, save_on_runtime=save_on_runtime, save_each_iter=save_each_iter, logs_txt=True,
+                                            resume_global_step_from=resume_global_step_from) ## nuovo parametro preso da tensorboard!!! è il numero di step
     print("**** Start to calculate accuracy ...")
     model_finetuned_predictions_test, dataset_labels_test = test_classifier(model_finetuned, dataset.test_loader)
     print("**** Accuracy of %s %0.2f%%" % (model_name, accuracy_score(dataset_labels_test, model_finetuned_predictions_test)*100) )
@@ -44,26 +45,26 @@ if __name__ == "__main__":
 
     # tutti i modelli prendono in input 224   
 
-    # dataset_v1 = import_dataset('dataset', 
-    #     train_transform=transforms.Compose([
-    #         transforms.Resize(256),
-    #         transforms.AutoAugment(transforms.AutoAugmentPolicy.CIFAR10),
-    #         transforms.RandomCrop(224),
-    #         transforms.RandomHorizontalFlip(p=0.4),
-    #         transforms.RandomPerspective(p=0.3),
-    #         transforms.RandomVerticalFlip(p=0.4),
-    #         transforms.ToTensor(),
-    #         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])     # default dev and std for pretrained models
-    #     ]),
-    #     test_transform=transforms.Compose([
-    #         transforms.Resize(256), 
-    #         transforms.CenterCrop(224), # crop centrale
-    #         transforms.AutoAugment(transforms.AutoAugmentPolicy.IMAGENET),
-    #         transforms.RandomHorizontalFlip(),
-    #         transforms.ToTensor(),
-    #         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])     # default dev and std for pretrained models
-    #     ])
-    # )
+    dataset_v1 = import_dataset('dataset', 
+        train_transform=transforms.Compose([
+            transforms.Resize(256),
+            transforms.AutoAugment(transforms.AutoAugmentPolicy.CIFAR10),
+            transforms.RandomCrop(224),
+            transforms.RandomHorizontalFlip(p=0.4),
+            transforms.RandomPerspective(p=0.3),
+            transforms.RandomVerticalFlip(p=0.4),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])     # default dev and std for pretrained models
+        ]),
+        test_transform=transforms.Compose([
+            transforms.Resize(256), 
+            transforms.CenterCrop(224), # crop centrale
+            transforms.AutoAugment(transforms.AutoAugmentPolicy.IMAGENET),
+            transforms.RandomHorizontalFlip(),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])     # default dev and std for pretrained models
+        ])
+    )
 
     # check corretto caricamento dataset
     # dataset_v1.show_info()
@@ -121,21 +122,34 @@ if __name__ == "__main__":
     
     # riprendo il training per i modelli che hanno avuto un valore migliore,
     # abilito il drop-last a differenza di prima ma lascio lo stesso numero di batch
+
     # cambio il dataset per fare generalizzare meglio il modello
-    train(creator=CCAlexNet(), model_name=get_model_name(model_name="AlexNet", lr="0.001"), dataset=dataset_v2, output_class=3, batch_size=64, num_workers=2, drop_last=True, lr=0.001, epochs=10, save_each_iter=2,
-            loaded_model=join('models/AlexNet__lr=0.001', 'AlexNet__lr=0.001-10.pth'), train_from_epoch=10) # indicatore che e' stato precedentemente trainato
+    train(creator=CCAlexNet(), model_name=get_model_name(model_name="AlexNet_2dst", lr="0.001"), dataset=dataset_v2, output_class=3, batch_size=64, num_workers=2, drop_last=True, lr=0.001, epochs=10, save_each_iter=2,
+            loaded_model=join('models/AlexNet__lr=0.001', 'AlexNet__lr=0.001-10.pth'),
+            train_from_epoch=10, resume_global_step_from=46575 ) # indicatore che e' stato precedentemente trainato
 
-    train(creator=CCMobileNetV2(), model_name=get_model_name(model_name="MobileNetV2", lr="0.001"), dataset=dataset_v2, output_class=3, batch_size=64, num_workers=2, drop_last=True, lr=0.001, epochs=10, save_each_iter=2,
-        loaded_model=join('models/MobileNetV2__lr=0.001', 'MobileNetV2__lr=0.001-10.pth'), train_from_epoch=10) # indicatore che e' stato precedentemente trainato
+    train(creator=CCMobileNetV2(), model_name=get_model_name(model_name="MobileNetV2_2dst", lr="0.001"), dataset=dataset_v2, output_class=3, batch_size=64, num_workers=2, drop_last=True, lr=0.001, epochs=10, save_each_iter=2,
+        loaded_model=join('models/MobileNetV2__lr=0.001', 'MobileNetV2__lr=0.001-10.pth'), train_from_epoch=10, resume_global_step_from=46575) # indicatore che e' stato precedentemente trainato
+
+    # utilizzo lo dataset_v1 come fatto per le precedenti epoche
+    train(creator=CCAlexNet(), model_name=get_model_name(model_name="AlexNet", lr="0.001"), dataset=dataset_v1, output_class=3, batch_size=64, num_workers=2, drop_last=True, lr=0.001, epochs=10, save_each_iter=2,
+            loaded_model=join('models/AlexNet__lr=0.001', 'AlexNet__lr=0.001-10.pth'), train_from_epoch=10, resume_global_step_from=46575) # indicatore che e' stato precedentemente trainato
+
+    train(creator=CCMobileNetV2(), model_name=get_model_name(model_name="MobileNetV2", lr="0.001"), dataset=dataset_v1, output_class=3, batch_size=64, num_workers=2, drop_last=True, lr=0.001, epochs=10, save_each_iter=2,
+        loaded_model=join('models/MobileNetV2__lr=0.001', 'MobileNetV2__lr=0.001-10.pth'), train_from_epoch=10, resume_global_step_from=46575) # indicatore che e' stato precedentemente trainato
 
 
+    ## to do 
     # decremento un po' il LR
     # salvo su un log diverso di tensorboard, quando serve guardare il graifico completo sposto i file all'interno e vedo tutti i dati
-    train(creator=CCAlexNet(), model_name=get_model_name(model_name="AlexNet", lr="0.0003"), dataset=dataset_v2, output_class=3, batch_size=64, num_workers=2, drop_last=True, lr=0.0003, epochs=10, save_each_iter=2,
-            loaded_model=join('models/AlexNet__lr=0.001', 'AlexNet__lr=0.001-10.pth'), train_from_epoch=0) # indicatore che e' stato precedentemente trainato
+    # train(creator=CCAlexNet(), model_name=get_model_name(model_name="AlexNet", lr="0.0003"), dataset=dataset_v2, output_class=3, batch_size=64, num_workers=2, drop_last=True, lr=0.0003, epochs=10, save_each_iter=2,
+    #         loaded_model=join('models/AlexNet__lr=0.001', 'AlexNet__lr=0.001-10.pth'), train_from_epoch=10) # indicatore che e' stato precedentemente trainato
 
-    train(creator=CCMobileNetV2(), model_name=get_model_name(model_name="MobileNetV2", lr="0.0003"), dataset=dataset_v2, output_class=3, batch_size=64, num_workers=2, drop_last=True, lr=0.0003, epochs=10, save_each_iter=2,
-        loaded_model=join('models/MobileNetV2__lr=0.001', 'MobileNetV2__lr=0.001-10.pth'), train_from_epoch=0) # indicatore che e' stato precedentemente trainato
+    # train(creator=CCMobileNetV2(), model_name=get_model_name(model_name="MobileNetV2", lr="0.0003"), dataset=dataset_v2, output_class=3, batch_size=64, num_workers=2, drop_last=True, lr=0.0003, epochs=10, save_each_iter=2,
+    #     loaded_model=join('models/MobileNetV2__lr=0.001', 'MobileNetV2__lr=0.001-10.pth'), train_from_epoch=10) # indicatore che e' stato precedentemente trainato
 
 
     # bisogna fare una differenza tra questi 4 valori per vedere quale performa meglio
+
+
+    ## end secondo training !!!

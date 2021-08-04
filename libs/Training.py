@@ -31,7 +31,8 @@ class AverageValueMeter():
 def trainval_classifier(model, dst_container: TDContainer, model_name='experiment',
                         lr: float=0.01, epochs: int=10, momentum: float=0.99,
                         logdir: str='logs', modeldir: str='models', train_from_epoch: int=0,
-                        save_on_runtime: bool=False, save_each_iter: int=20, logs_txt: bool=False):
+                        save_on_runtime: bool=False, save_each_iter: int=20, logs_txt: bool=False,
+                        resume_global_step_from: int=0):
     
     timer_start = time.time()    
     criterion = nn.CrossEntropyLoss() # used for classification https://pytorch.org/docs/stable/generated/torch.nn.CrossEntropyLoss.html
@@ -56,7 +57,7 @@ def trainval_classifier(model, dst_container: TDContainer, model_name='experimen
         'train': dst_container.training_loader,
         'validation': dst_container.validation_loader
     }
-    global_step = 0
+    global_step = 0 + resume_global_step_from
     for e in range(epochs):
         print ("\rCurrent computing: %d/%d" % ( e+1,  epochs), end="") # \r allow to make carriage returns
         ## print ("\rComputed: %d/%d, current: loss: %s accuracy: %s" % ( e+1,  epochs, loss_meter.value(), acc_meter.value()), end="") # \r allow to make carriage returns
