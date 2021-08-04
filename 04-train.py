@@ -43,6 +43,8 @@ if __name__ == "__main__":
     random.seed(1996)
     np.random.seed(1996)
 
+    ## scelta del modello migliore tra gli zoo
+
     # tutti i modelli prendono in input 224   
 
     dataset_v1 = import_dataset('dataset', 
@@ -124,32 +126,35 @@ if __name__ == "__main__":
     # abilito il drop-last a differenza di prima ma lascio lo stesso numero di batch
 
     # cambio il dataset per fare generalizzare meglio il modello
-    train(creator=CCAlexNet(), model_name=get_model_name(model_name="AlexNet_2dst", lr="0.001"), dataset=dataset_v2, output_class=3, batch_size=64, num_workers=2, drop_last=True, lr=0.001, epochs=10, save_each_iter=2,
-            loaded_model=join('models/AlexNet__lr=0.001', 'AlexNet__lr=0.001-10.pth'),
-            train_from_epoch=10, resume_global_step_from=46575 ) # indicatore che e' stato precedentemente trainato
+    ## train(creator=CCAlexNet(), model_name=get_model_name(model_name="AlexNet_2dst", lr="0.001"), dataset=dataset_v2, output_class=3, batch_size=64, num_workers=2, drop_last=True, lr=0.001, epochs=10, save_each_iter=2,
+    ##         loaded_model=join('models/AlexNet__lr=0.001', 'AlexNet__lr=0.001-10.pth'),
+    ##         train_from_epoch=10, resume_global_step_from=46575 ) # indicatore che e' stato precedentemente trainato
 
-    train(creator=CCMobileNetV2(), model_name=get_model_name(model_name="MobileNetV2_2dst", lr="0.001"), dataset=dataset_v2, output_class=3, batch_size=64, num_workers=2, drop_last=True, lr=0.001, epochs=10, save_each_iter=2,
-        loaded_model=join('models/MobileNetV2__lr=0.001', 'MobileNetV2__lr=0.001-10.pth'), train_from_epoch=10, resume_global_step_from=46575) # indicatore che e' stato precedentemente trainato
+    ## train(creator=CCMobileNetV2(), model_name=get_model_name(model_name="MobileNetV2_2dst", lr="0.001"), dataset=dataset_v2, output_class=3, batch_size=64, num_workers=2, drop_last=True, lr=0.001, epochs=10, save_each_iter=2,
+    ##     loaded_model=join('models/MobileNetV2__lr=0.001', 'MobileNetV2__lr=0.001-10.pth'), train_from_epoch=10, resume_global_step_from=46575) # indicatore che e' stato precedentemente trainato
 
-    # utilizzo lo dataset_v1 come fatto per le precedenti epoche
-    train(creator=CCAlexNet(), model_name=get_model_name(model_name="AlexNet", lr="0.001"), dataset=dataset_v1, output_class=3, batch_size=64, num_workers=2, drop_last=True, lr=0.001, epochs=10, save_each_iter=2,
-            loaded_model=join('models/AlexNet__lr=0.001', 'AlexNet__lr=0.001-10.pth'), train_from_epoch=10, resume_global_step_from=46575) # indicatore che e' stato precedentemente trainato
+    ## # utilizzo lo dataset_v1 come fatto per le precedenti epoche
+    ## train(creator=CCAlexNet(), model_name=get_model_name(model_name="AlexNet", lr="0.001"), dataset=dataset_v1, output_class=3, batch_size=64, num_workers=2, drop_last=True, lr=0.001, epochs=10, save_each_iter=2,
+    ##         loaded_model=join('models/AlexNet__lr=0.001', 'AlexNet__lr=0.001-10.pth'), train_from_epoch=10, resume_global_step_from=46575) # indicatore che e' stato precedentemente trainato
 
-    train(creator=CCMobileNetV2(), model_name=get_model_name(model_name="MobileNetV2", lr="0.001"), dataset=dataset_v1, output_class=3, batch_size=64, num_workers=2, drop_last=True, lr=0.001, epochs=10, save_each_iter=2,
-        loaded_model=join('models/MobileNetV2__lr=0.001', 'MobileNetV2__lr=0.001-10.pth'), train_from_epoch=10, resume_global_step_from=46575) # indicatore che e' stato precedentemente trainato
+    ## train(creator=CCMobileNetV2(), model_name=get_model_name(model_name="MobileNetV2", lr="0.001"), dataset=dataset_v1, output_class=3, batch_size=64, num_workers=2, drop_last=True, lr=0.001, epochs=10, save_each_iter=2,
+    ##     loaded_model=join('models/MobileNetV2__lr=0.001', 'MobileNetV2__lr=0.001-10.pth'), train_from_epoch=10, resume_global_step_from=46575) # indicatore che e' stato precedentemente trainato
 
 
-    ## to do 
     # decremento un po' il LR
     # salvo su un log diverso di tensorboard, quando serve guardare il graifico completo sposto i file all'interno e vedo tutti i dati
-    # train(creator=CCAlexNet(), model_name=get_model_name(model_name="AlexNet", lr="0.0003"), dataset=dataset_v2, output_class=3, batch_size=64, num_workers=2, drop_last=True, lr=0.0003, epochs=10, save_each_iter=2,
-    #         loaded_model=join('models/AlexNet__lr=0.001', 'AlexNet__lr=0.001-10.pth'), train_from_epoch=10) # indicatore che e' stato precedentemente trainato
 
-    # train(creator=CCMobileNetV2(), model_name=get_model_name(model_name="MobileNetV2", lr="0.0003"), dataset=dataset_v2, output_class=3, batch_size=64, num_workers=2, drop_last=True, lr=0.0003, epochs=10, save_each_iter=2,
-    #     loaded_model=join('models/MobileNetV2__lr=0.001', 'MobileNetV2__lr=0.001-10.pth'), train_from_epoch=10) # indicatore che e' stato precedentemente trainato
+    ### to do ::    
+    train(creator=CCAlexNet(), model_name=get_model_name(model_name="AlexNet", lr="0.0003"), dataset=dataset_v1, output_class=3, batch_size=64, num_workers=2, drop_last=True, lr=0.0003, epochs=10, save_each_iter=2,
+            loaded_model=join('models/AlexNet__lr=0.001', 'AlexNet__lr=0.001-10.pth'), train_from_epoch=10) # indicatore che e' stato precedentemente trainato
+    
+    train(creator=CCMobileNetV2(), model_name=get_model_name(model_name="MobileNetV2", lr="0.0003"), dataset=dataset_v1, output_class=3, batch_size=64, num_workers=2, drop_last=True, lr=0.0003, epochs=10, save_each_iter=2,
+        loaded_model=join('models/MobileNetV2__lr=0.001', 'MobileNetV2__lr=0.001-10.pth'), train_from_epoch=10) # indicatore che e' stato precedentemente trainato
 
 
     # bisogna fare una differenza tra questi 4 valori per vedere quale performa meglio
 
 
     ## end secondo training !!!
+
+    # per relazione: fai confronto tra tutti questi grafici per spiegare a cosa ti ha portato continuare a fare il training per piu epoche con il modello che hai edtto tu
