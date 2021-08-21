@@ -37,27 +37,31 @@ if __name__ == "__main__":
     random.seed(1996)
     np.random.seed(1996)
 
-    dataset_v1 = import_dataset('dataset', 
+    # continuo col dataset di 04-train.py
+    
+    dataset_v3 = import_dataset('dataset', 
         train_transform=transforms.Compose([
             transforms.Resize(256),
-            transforms.AutoAugment(transforms.AutoAugmentPolicy.CIFAR10),
+            transforms.AutoAugment(transforms.AutoAugmentPolicy.IMAGENET),
             transforms.RandomCrop(224),
-            transforms.RandomHorizontalFlip(p=0.4),
-            transforms.RandomPerspective(p=0.3),
-            transforms.RandomVerticalFlip(p=0.4),
+            transforms.RandomApply(torch.nn.ModuleList([
+                transforms.Grayscale(num_output_channels=3), # tutti i modelli richiedono un'immagine a tre livelli
+            ]), p=0.3), # effettuo un grayscale con probabilità 0.3
+            
             transforms.ToTensor(),
             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])     # default dev and std for pretrained models
         ]),
         test_transform=transforms.Compose([
             transforms.Resize(256), 
             transforms.CenterCrop(224), # crop centrale
-            transforms.AutoAugment(transforms.AutoAugmentPolicy.IMAGENET),
-            transforms.RandomHorizontalFlip(),
+            transforms.AutoAugment(transforms.AutoAugmentPolicy.SVHN), # NOTA: già su dataset_v2 è stato settato sul train
+            transforms.RandomApply(torch.nn.ModuleList([
+                transforms.Grayscale(num_output_channels=3), # tutti i modelli richiedono un'immagine a tre livelli
+            ]), p=0.2), # effettuo un grayscale con probabilità 0.2
             transforms.ToTensor(),
             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])     # default dev and std for pretrained models
         ])
     )
-
 
     # effettuo un ulteriore training di 10 epoche senza parametri freezati per migliorare il modello con LR collegato
 

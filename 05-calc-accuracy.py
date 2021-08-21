@@ -28,6 +28,7 @@ if __name__ == "__main__":
     random.seed(1996)
     np.random.seed(1996)
 
+    # calcolo l'accuracy applicando trasformazioni diverse al dataset rispetto a quelle di training
     dataset_v1 = import_dataset('dataset', 
         train_transform=transforms.Compose([
             transforms.Resize(256),
