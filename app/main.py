@@ -6,7 +6,7 @@ from PIL import Image
 from libs.PretrainedModels import PretrainedModelsCreator, CCAlexNet
 
                                                         ## di default carico un modello da mettere nella repo per test antonio
-def init(creator: PretrainedModelsCreator, path_mdl: str='CCAlexNet_lr=0.001-50.pth'):
+def init(creator: PretrainedModelsCreator, path_mdl: str='AlexNet_2dst__lr=0.0003-40.pth'):
     #print('Instantiating ' )
     #print(type(creator))
     creator.initialize_model(output_class=3)

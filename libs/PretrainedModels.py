@@ -82,6 +82,14 @@ class CCAlexNet(PretrainedModelsCreator):
     def factory_method(self) -> PretrainedModel:
         return CPAlexNet()
 
+class CCAlexNet_rg(PretrainedModelsCreator):
+    def factory_method(self) -> PretrainedModel:
+        return CPAlexNet_rg()
+
+class CCAlexNetV2(PretrainedModelsCreator):
+    def factory_method(self) -> PretrainedModel:
+        return CPAlexNetV2()
+
 class CCVgg16(PretrainedModelsCreator):
     def factory_method(self) -> PretrainedModel:
         return CPVgg16()
@@ -106,9 +114,19 @@ class CPAlexNet(PretrainedModel):
         for param in model.parameters():
             param.requires_grad = False
 
-        model.classifier[6] = nn.Linear(4096)
+        model.classifier[6] = nn.Linear(4096, output_class)
 
-class CPAlexNet(PretrainedModel):
+class CPAlexNet_rg(PretrainedModel):
+    def get_model(self, output_class: int = 3):
+
+        # non effettuo il freeze dei layer
+
+        model = alexnet(pretrained=True)
+        model.classifier[6] = nn.Linear(4096, output_class)
+
+
+
+class CPAlexNetV2(PretrainedModel):
     def get_model(self, output_class: int = 3):
         model = alexnet(pretrained=True)
 
