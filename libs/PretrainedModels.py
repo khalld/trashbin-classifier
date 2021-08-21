@@ -55,9 +55,9 @@ class PretrainedModelsCreator(ABC):
     def load_model(self, path: str) -> None:
         print("Loading model using load_state_dict..")
         if (self.device == "cpu"):
-            self.model.load_state_dict(torch.load(path, map_location=torch.device('cpu'))) # su colab c'è la cpu qui no! quindi se lo alleno sulla gpu devo cambiarlo
+            self.model.load_state_dict(torch.load(path, map_location=torch.device('cpu')), strict=False) # su colab c'è la cpu qui no! quindi se lo alleno sulla gpu devo cambiarlo
         else:
-            self.model.load_state_dict(torch.load(path))
+            self.model.load_state_dict(torch.load(path), strict=False) # VEDI COSA SIGNIFICA STRICT
 
     def get_info(self) -> None:
         print("Information about model", self.model)
@@ -116,15 +116,15 @@ class CPAlexNet(PretrainedModel):
 
         model.classifier[6] = nn.Linear(4096, output_class)
 
+        return model
+
 class CPAlexNet_rg(PretrainedModel):
     def get_model(self, output_class: int = 3):
-
         # non effettuo il freeze dei layer
-
         model = alexnet(pretrained=True)
         model.classifier[6] = nn.Linear(4096, output_class)
 
-
+        return model
 
 class CPAlexNetV2(PretrainedModel):
     def get_model(self, output_class: int = 3):
