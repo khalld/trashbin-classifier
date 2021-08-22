@@ -52,30 +52,16 @@ class PretrainedModelsCreator(ABC):
         """
             Nasce dalla necessità che a livello di GUI non devo inizializzare nessun dataset né dataLoader ma semplicemente devo scaricare il modello
         """
-        self.device = "cuda" if torch.cuda.is_available() else "cpu"
         product = self.factory_method()
         self.model, self.input_size = product.get_model(num_classes, feature_extract, use_pretrained)
 
-    # inizializza solo il dataset lascia spacchiare il modello perché lo deve fare prima
-    def init_dst(self, dataset: TDContainer, batch_size: int=32, num_workers: int=2, drop_last: bool=False) -> None:
-        """The Creator's primary responsibility is not creating products. Usually, it contains 
-        some core business logic that relies on Product objects, returned by the factory method.
-        Subclasses can indirectly change that business logic by overriding the
-        factory method and returning a different type of product from it."""
-
-        # set the dataset inside the object
-        self.dst = dataset
-        ## instantiate DataLoader too
-        self.dst.create_data_loader(batch_size=batch_size, num_workers=num_workers, drop_last=drop_last )
-
-        # catch che dica se esiste il modello o no
-
-    def load_model(self, path: str) -> None:
-        print("Loading model using load_state_dict..")
-        if (self.device == "cpu"):
-            self.model.load_state_dict(torch.load(path, map_location=torch.device('cpu')), strict=False) # su colab c'è la cpu qui no! quindi se lo alleno sulla gpu devo cambiarlo
-        else:
-            self.model.load_state_dict(torch.load(path), strict=False) # VEDI COSA SIGNIFICA STRICT
+    # self.device è deprecato!!!
+    # def load_model(self, path: str) -> None:
+    #     print("Loading model using load_state_dict..")
+    #     if (self.device == "cpu"):
+    #         self.model.load_state_dict(torch.load(path, map_location=torch.device('cpu')), strict=False) # su colab c'è la cpu qui no! quindi se lo alleno sulla gpu devo cambiarlo
+    #     else:
+    #         self.model.load_state_dict(torch.load(path), strict=False) # VEDI COSA SIGNIFICA STRICT
 
     def get_info(self) -> None:
         print("Model:\n", self.model)
