@@ -1,3 +1,4 @@
+from random import shuffle
 from libs.TrashbinDataset import TrashbinDataset ## run local
 # from TrashbinDataset import TrashbinDataset ## run colab
 from torch.utils.data import DataLoader
@@ -46,8 +47,8 @@ class TDContainer:
             raise NotImplementedError("Parameters accept only int value.")
 
         self.training_loader = DataLoader(self.training, batch_size=batch_size, num_workers=num_workers, drop_last=drop_last, shuffle=True)
-        self.validation_loader = DataLoader(self.validation, batch_size=batch_size, num_workers=num_workers, drop_last=drop_last)
-        self.test_loader = DataLoader(self.test, batch_size=batch_size, num_workers=num_workers, drop_last=drop_last)
+        self.validation_loader = DataLoader(self.validation, batch_size=batch_size, num_workers=num_workers, drop_last=drop_last, shuffle=True)
+        self.test_loader = DataLoader(self.test, batch_size=batch_size, num_workers=num_workers, drop_last=drop_last, shuffle=True)
         self.hasDl = True
 
     def show_info(self):

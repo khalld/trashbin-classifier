@@ -1,17 +1,40 @@
 
 from __future__ import annotations
+from __future__ import print_function 
+from __future__ import division
 from abc import ABC, abstractmethod
 
 from libs.TDContainer import TDContainer  ## run local
-# from TDContainer import TDContainer ## run colab
+# # from TDContainer import TDContainer ## run colab
+
+# import torch
+# from torch import nn    # basic building-blocks for graphs https://pytorch.org/docs/stable/nn.html
+
+# # *** torchvision pretrained models https://pytorch.org/vision/stable/models.html ***
+# from torchvision.models import alexnet
+# from torchvision.models import vgg16
+# from torchvision.models import mobilenet_v2
+
+# DA UNCOMMENTARE SOPRA ^^^^
+
+from torchvision import datasets, models, transforms
 
 import torch
-from torch import nn    # basic building-blocks for graphs https://pytorch.org/docs/stable/nn.html
+import torch.nn as nn
+import torch.optim as optim
+import numpy as np
+import torchvision
+from torchvision import datasets, models, transforms
+import matplotlib.pyplot as plt
+import time
+import os
+import copy
 
-# *** torchvision pretrained models https://pytorch.org/vision/stable/models.html ***
-from torchvision.models import alexnet
-from torchvision.models import vgg16
-from torchvision.models import mobilenet_v2
+# helper function
+def set_parameter_requires_grad(model, feature_extracting):
+    if feature_extracting:
+        for param in model.parameters():
+            param.requires_grad = False
 
 # Creator
 class PretrainedModelsCreator(ABC):
@@ -24,33 +47,28 @@ class PretrainedModelsCreator(ABC):
         """No default implementation needed"""
         pass
 
-    def initialize_model(self, output_class: int = 2):
+    # cosa da fare all'inizio
+    def init_model(self, num_classes: int = 3, feature_extract: bool=True, use_pretrained: bool = True):
         """
             Nasce dalla necessità che a livello di GUI non devo inizializzare nessun dataset né dataLoader ma semplicemente devo scaricare il modello
         """
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         product = self.factory_method()
-        self.model = product.get_model(output_class)
+        self.model, self.input_size = product.get_model(num_classes, feature_extract, use_pretrained)
 
-        return True
-
-    def initialize_dst(self, dataset: TDContainer, output_class: int = 2, batch_size: int=32, num_workers: int=2, drop_last: bool=False) -> None:
+    # inizializza solo il dataset lascia spacchiare il modello perché lo deve fare prima
+    def init_dst(self, dataset: TDContainer, batch_size: int=32, num_workers: int=2, drop_last: bool=False) -> None:
         """The Creator's primary responsibility is not creating products. Usually, it contains 
         some core business logic that relies on Product objects, returned by the factory method.
         Subclasses can indirectly change that business logic by overriding the
         factory method and returning a different type of product from it."""
 
-        # implementa nel modulo
-        # use cpu if is possible
-        self.device = "cuda" if torch.cuda.is_available() else "cpu"        
-        # call factory method to create a Product object
-        product = self.factory_method()
-        # get the model from product
-        self.model = product.get_model(output_class)
         # set the dataset inside the object
         self.dst = dataset
         ## instantiate DataLoader too
         self.dst.create_data_loader(batch_size=batch_size, num_workers=num_workers, drop_last=drop_last )
+
+        # catch che dica se esiste il modello o no
 
     def load_model(self, path: str) -> None:
         print("Loading model using load_state_dict..")
@@ -60,124 +78,71 @@ class PretrainedModelsCreator(ABC):
             self.model.load_state_dict(torch.load(path), strict=False) # VEDI COSA SIGNIFICA STRICT
 
     def get_info(self) -> None:
-        print("Information about model", self.model)
+        print("Model:\n", self.model)
+        print("Input size:\n", self.input_size)
 
-    def get_state_dict(self) -> None:
-        print("Model's state_dict:")
-        for param_tensor in self.model.state_dict():
-            print(param_tensor, "\t", self.model.state_dict()[param_tensor].size())
-
-    def get_parameters(self) -> None:
-        print("Print parameter")
-        for name, param in self.model.named_parameters():
-            if param.requires_grad:
-                print("name", name, "param", param.data)
-
-    def return_model(self):
+    # non so se sono necessari
+    def ret_model(self):
         return self.model
 
+    def ret_input_size(self):
+        return self.input_size
+
 """ Concrete Creators override the factory method in order to change the resulting product's type. """
-
-class CCAlexNet(PretrainedModelsCreator):
+class AlexNet_cc(PretrainedModelsCreator):
     def factory_method(self) -> PretrainedModel:
-        return CPAlexNet()
-
-class CCAlexNet_rg(PretrainedModelsCreator):
+        return AlexNet_cp()
+        
+class SqueezeNet_cc(PretrainedModelsCreator):
     def factory_method(self) -> PretrainedModel:
-        return CPAlexNet_rg()
+        return SqueezeNet_cp()
 
-class CCAlexNetV2(PretrainedModelsCreator):
+class InceptionV3_cc(PretrainedModelsCreator):
     def factory_method(self) -> PretrainedModel:
-        return CPAlexNetV2()
-
-class CCVgg16(PretrainedModelsCreator):
-    def factory_method(self) -> PretrainedModel:
-        return CPVgg16()
-
-class CCMobileNetV2(PretrainedModelsCreator):
-    def factory_method(self) -> PretrainedModel:
-        return CPMobileNetV2()
+        return InceptionV3_cp()
 
 """Product"""
 class PretrainedModel(ABC):
     """ The Product interface declares the operations that all concrete products
     must implement."""
     @abstractmethod
-    def get_model(self, output_class: int = 3):
+    def get_model(self, num_classes: int = 3, feature_extract: bool=True, use_pretrained: bool=True):
         pass
 
 """Concrete Products provide various implementations of the Product interface."""
-class CPAlexNet(PretrainedModel):
-    def get_model(self, output_class: int = 3):
-        model = alexnet(pretrained=True)
+class AlexNet_cp(PretrainedModel):
+    def get_model(self, num_classes: int = 3, feature_extract: bool = True, use_pretrained: bool=True):
 
-        for param in model.parameters():
-            param.requires_grad = False
+        model_ft = models.alexnet(pretrained=use_pretrained)
+        set_parameter_requires_grad(model_ft, feature_extract)
+        num_ftrs = model_ft.classifier[6].in_features
+        model_ft.classifier[6] = nn.Linear(num_ftrs,num_classes)
+        input_size = 224
 
-        model.classifier[6] = nn.Linear(4096, output_class)
+        return model_ft, input_size
 
-        return model
+class SqueezeNet_cp(PretrainedModel):
+    def get_model(self, num_classes: int, feature_extract: bool = True, use_pretrained: bool=True):
+        model_ft = models.squeezenet1_0(pretrained=use_pretrained)
+        set_parameter_requires_grad(model_ft, feature_extract)
+        model_ft.classifier[1] = nn.Conv2d(512, num_classes, kernel_size=(1,1), stride=(1,1))
+        model_ft.num_classes = num_classes
+        input_size = 224
 
-class CPAlexNet_rg(PretrainedModel):
-    def get_model(self, output_class: int = 3):
-        # non effettuo il freeze dei layer
-        model = alexnet(pretrained=True)
-        model.classifier[6] = nn.Linear(4096, output_class)
+        return model_ft, input_size
 
-        return model
+class InceptionV3_cp(PretrainedModel):
+    def get_model(self, num_classes: int, feature_extract: bool = True, use_pretrained: bool=True):
+        """Be careful, expects (299,299) sized images and has auxiliary output """
+        model_ft = models.inception_v3(pretrained=use_pretrained)
+        set_parameter_requires_grad(model_ft, feature_extract)
+        # Handle the auxilary net
+        num_ftrs = model_ft.AuxLogits.fc.in_features
+        model_ft.AuxLogits.fc = nn.Linear(num_ftrs, num_classes)
+        # Handle the primary net
+        num_ftrs = model_ft.fc.in_features
+        model_ft.fc = nn.Linear(num_ftrs,num_classes)
+        input_size = 299
 
-class CPAlexNetV2(PretrainedModel):
-    def get_model(self, output_class: int = 3):
-        model = alexnet(pretrained=True)
+        return model_ft, input_size
 
-        for param in model.parameters():
-            param.requires_grad = False
-
-        model.classifier[6] = nn.Sequential(
-                        nn.Linear(4096, 256),
-                        nn.SiLU(),  # better than reLu
-                        ## dropout e applicato solitamente dopo la funzione di attivazione non lineare, in alcuni casi con la relu ha piu senso il contrario
-                        nn.Dropout(0.4),    # effective technique for regularization and preventing the co-adaptation of neurons
-                        nn.Linear(256, output_class)
-                    )
-
-
-        return model
-
-class CPVgg16(PretrainedModel):
-    def get_model(self, output_class: int = 3):
-
-        # load pretrained weights from a network trained on large dataset 
-        model = vgg16(pretrained=True)
-
-        # initially freeze all the models weights
-        for param in model.parameters():
-            param.requires_grad = False
-
-        # add custom classifier
-        # model.classifier[6] = nn.Linear(4096, output_class)
-        # by default requires_grad = True
-        model.classifier[6] = nn.Sequential(
-                                nn.Linear(4096, 256),
-                                nn.SiLU(),  # better than reLu
-                                nn.Dropout(0.4),    # effective technique for regularization and preventing the co-adaptation of neurons
-                                nn.Linear(256, output_class)
-                            )
-
-        return model
-
-class CPMobileNetV2(PretrainedModel):
-    def get_model(self, output_class: int = 3):
-        model = mobilenet_v2(pretrained=True)
-
-        # initialy freeze all the models weights
-        for param in model.parameters():
-            param.requires_grad = False
-
-        # add custom classifier
-        model.classifier = nn.Sequential(
-                                nn.Dropout(p=0.2, inplace=False),   # resta uguale
-                                nn.Linear(in_features=1280, out_features=output_class, bias=True)
-                            )
-
-        return model

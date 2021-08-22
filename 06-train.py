@@ -67,23 +67,45 @@ if __name__ == "__main__":
     # ma aggiornando anche i parametri
 
     # AlexNet__lr=0.001
-    train(creator=CCAlexNet_rg(), model_name=get_model_name(model_name="AlexNet", lr="0.001"), dataset=dataset_v3, output_class=3, batch_size=64, num_workers=2, drop_last=True, lr=0.001, epochs=25, save_each_iter=4,
-        loaded_model=join('models/AlexNet__lr=0.001', 'AlexNet__lr=0.001-40.pth'),
-        train_from_epoch=40, resume_global_step_from=185455)
+    #train(creator=CCAlexNet_rg(), model_name=get_model_name(model_name="AlexNet", lr="0.001"), dataset=dataset_v3, output_class=3, batch_size=64, num_workers=2, drop_last=True, lr=0.001, epochs=25, save_each_iter=4,
+    #    loaded_model=join('models/AlexNet__lr=0.001', 'AlexNet__lr=0.001-40.pth'),
+    #    train_from_epoch=40, resume_global_step_from=185455)
     
     # AlexNet__lr=0.0003
-    train(creator=CCAlexNet_rg(), model_name=get_model_name(model_name="AlexNet", lr="0.0003"), dataset=dataset_v3, output_class=3, batch_size=64, num_workers=2, drop_last=True, lr=0.0003, epochs=25, save_each_iter=4,
-        loaded_model=join('models/AlexNet__lr=0.0003', 'AlexNet__lr=0.0003-40.pth'),
-        train_from_epoch=40, resume_global_step_from=185455)
+    # train(creator=CCAlexNet_rg(), model_name=get_model_name(model_name="AlexNet", lr="0.0003"), dataset=dataset_v3, output_class=3, batch_size=64, num_workers=2, drop_last=True, lr=0.0003, epochs=25, save_each_iter=4,
+    #     loaded_model=join('models/AlexNet__lr=0.0003', 'AlexNet__lr=0.0003-40.pth'),
+    #     train_from_epoch=40, resume_global_step_from=185455)
 
     # 2 dataset
 
     # AlexNet_2dst__lr=0.001
-    train(creator=CCAlexNet_rg(), model_name=get_model_name(model_name="AlexNet_2dst", lr="0.001"), dataset=dataset_v3, output_class=3, batch_size=64, num_workers=2, drop_last=True, lr=0.001, epochs=25, save_each_iter=4,
-        loaded_model=join('models/AlexNet_2dst__lr=0.001', 'AlexNet_2dst__lr=0.001-40.pth'),
-        train_from_epoch=40, resume_global_step_from=185455)
+    # train(creator=CCAlexNet_rg(), model_name=get_model_name(model_name="AlexNet_2dst", lr="0.001"), dataset=dataset_v3, output_class=3, batch_size=64, num_workers=2, drop_last=True, lr=0.001, epochs=25, save_each_iter=5,
+    #     loaded_model=join('models/AlexNet_2dst__lr=0.001', 'AlexNet_2dst__lr=0.001-40.pth'),
+    #     train_from_epoch=40, resume_global_step_from=185455)
+
+    # *** Instantiating AlexNet__lr=0.0003
+    # **** Loading model
+    # Loading model using load_state_dict..
+    # **** Starting procedure ***
+    # Current computing: 25/25
+    # Ended in:  99.49316751559576 minutes
+    # **** Start to calculate accuracy ...
+    # **** Accuracy of AlexNet__lr=0.0003 98.14%
+    # **** Ended AlexNet__lr=0.0003
+    # **** Instantiating AlexNet_2dst__lr=0.001
+    # **** Loading model
+    # Loading model using load_state_dict..
+    # **** Starting procedure ***
+    # Current computing: 25/25
+    # Ended in:  98.39471445083618 minutes
+    # **** Start to calculate accuracy ...
+    # **** Accuracy of AlexNet_2dst__lr=0.001 95.92%
+    # **** Ended AlexNet_2dst__lr=0.001
+    # **** Instantiating AlexNet_2dst__lr=0.0003
+    # **** Loading model
+    # Loading model using load_state_dict..
 
     # AlexNet_2dst__lr=0.0003
-    train(creator=CCAlexNet_rg(), model_name=get_model_name(model_name="AlexNet_2dst", lr="0.0003"), dataset=dataset_v3, output_class=3, batch_size=64, num_workers=2, drop_last=True, lr=0.0003, epochs=25, save_each_iter=4,
+    train(creator=CCAlexNet_rg(), model_name=get_model_name(model_name="AlexNet_2dst", lr="0.0003"), dataset=dataset_v3, output_class=3, batch_size=64, num_workers=2, drop_last=True, lr=0.0003, epochs=25, save_each_iter=5,
         loaded_model=join('models/AlexNet_2dst__lr=0.0003', 'AlexNet_2dst__lr=0.0003-40.pth'),
         train_from_epoch=40, resume_global_step_from=185455)
