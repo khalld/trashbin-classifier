@@ -82,10 +82,10 @@ class PretrainedModelsCreator(ABC):
         print("Input size:\n", self.input_size)
 
     # non so se sono necessari
-    def ret_model(self):
+    def get_model(self):
         return self.model
 
-    def ret_input_size(self):
+    def get_input_size(self):
         return self.input_size
 
 """ Concrete Creators override the factory method in order to change the resulting product's type. """
