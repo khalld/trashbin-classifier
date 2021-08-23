@@ -5,7 +5,7 @@ from __future__ import division
 from abc import ABC, abstractmethod
 
 from libs.TDContainer import TDContainer  
-from libs.Training2 import train_model_adapted
+from libs.Training import train_model
 from torchvision import datasets, models, transforms
 import torch
 import torch.nn as nn
@@ -36,15 +36,16 @@ class PretrainedModelsCreator(ABC):
         pass
 
     # cosa da fare all'inizio
-    def init_model(self, num_classes: int = 3, feature_extract: bool=True, use_pretrained: bool = True):
+    def init_model(self, model_name, num_classes: int = 3, feature_extract: bool=True, use_pretrained: bool = True):
         """
             Nasce dalla necessità che a livello di GUI non devo inizializzare nessun dataset né dataLoader ma semplicemente devo scaricare il modello
         """
         product = self.factory_method()
         self.feature_extract = feature_extract
+        self.model_name = model_name
         self.model_ft, self.input_size, self.is_inception = product.get_model(num_classes, feature_extract, use_pretrained)
 
-    def do_train(self, dataset, num_epochs, lr, momentum, criterion):
+    def do_train(self, dataset, num_epochs, lr, momentum, criterion, train_from_epoch, save_each_iter, resume_global_step_from):
         print('Feature extract is setted to: ', self.feature_extract)
 
         # Create optimizer
@@ -65,7 +66,16 @@ class PretrainedModelsCreator(ABC):
         # End create optimizer
 
         # criterion = nn.CrossEntropyLoss()
-        model_tr, history = train_model_adapted(model=self.model_ft, dst_container=dataset, criterion=criterion, optimizer=optimizer, num_epochs=num_epochs, is_inception=self.is_inception )
+        model_tr, history = train_model(model=self.model_ft,
+                                        dst_container=dataset,
+                                        criterion=criterion,
+                                        optimizer=optimizer,
+                                        num_epochs=num_epochs,
+                                        model_name=self.model_name,
+                                        train_from_epoch=train_from_epoch,
+                                        save_each_iter=save_each_iter,
+                                        resume_global_step_from=resume_global_step_from,
+                                        is_inception=self.is_inception)
 
         return model_tr, history
 

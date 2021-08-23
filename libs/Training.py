@@ -6,7 +6,7 @@ from torch import nn
 from torch.utils.tensorboard import SummaryWriter
 import os
 
-def train_model_adapted(model,
+def train_model(model,
                         dst_container, 
                         criterion,
                         optimizer,
