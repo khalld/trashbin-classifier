@@ -4,21 +4,9 @@ from __future__ import print_function
 from __future__ import division
 from abc import ABC, abstractmethod
 
-from libs.TDContainer import TDContainer  ## run local
-# # from TDContainer import TDContainer ## run colab
-
-# import torch
-# from torch import nn    # basic building-blocks for graphs https://pytorch.org/docs/stable/nn.html
-
-# # *** torchvision pretrained models https://pytorch.org/vision/stable/models.html ***
-# from torchvision.models import alexnet
-# from torchvision.models import vgg16
-# from torchvision.models import mobilenet_v2
-
-# DA UNCOMMENTARE SOPRA ^^^^
-
+from libs.TDContainer import TDContainer  
+from libs.Training2 import train_model_adapted
 from torchvision import datasets, models, transforms
-
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -53,7 +41,33 @@ class PretrainedModelsCreator(ABC):
             Nasce dalla necessità che a livello di GUI non devo inizializzare nessun dataset né dataLoader ma semplicemente devo scaricare il modello
         """
         product = self.factory_method()
-        self.model, self.input_size = product.get_model(num_classes, feature_extract, use_pretrained)
+        self.feature_extract = feature_extract
+        self.model_ft, self.input_size, self.is_inception = product.get_model(num_classes, feature_extract, use_pretrained)
+
+    def do_train(self, dataset, num_epochs, lr, momentum, criterion):
+        print('Feature extract is setted to: ', self.feature_extract)
+
+        # Create optimizer
+        params_to_update = self.model_ft.parameters()
+        
+        if self.feature_extract:
+            params_to_update = []
+            for name,param in self.model_ft.named_parameters():
+                if param.requires_grad == True:
+                    params_to_update.append(param)
+                    print("\t",name)
+        else:
+            for name,param in self.model_ft.named_parameters():
+                if param.requires_grad == True:
+                    print("\t",name)
+
+        optimizer = optim.SGD(params_to_update, lr=lr, momentum=momentum)
+        # End create optimizer
+
+        # criterion = nn.CrossEntropyLoss()
+        model_tr, history = train_model_adapted(model=self.model_ft, dst_container=dataset, criterion=criterion, optimizer=optimizer, num_epochs=num_epochs, is_inception=self.is_inception )
+
+        return model_tr, history
 
     # self.device è deprecato!!!
     # def load_model(self, path: str) -> None:
@@ -64,14 +78,14 @@ class PretrainedModelsCreator(ABC):
     #         self.model.load_state_dict(torch.load(path), strict=False) # VEDI COSA SIGNIFICA STRICT
 
     def get_info(self) -> None:
-        print("Model:\n", self.model)
+        print("Finetuned model info:\n", self.model_ft)
         print("Input size:\n", self.input_size)
 
     # non so se sono necessari
-    def get_model(self):
-        return self.model
+    def ret_model(self):
+        return self.model_ft
 
-    def get_input_size(self):
+    def ret_input_size(self):
         return self.input_size
 
 """ Concrete Creators override the factory method in order to change the resulting product's type. """
@@ -105,7 +119,9 @@ class AlexNet_cp(PretrainedModel):
         model_ft.classifier[6] = nn.Linear(num_ftrs,num_classes)
         input_size = 224
 
-        return model_ft, input_size
+        is_inception = False
+
+        return model_ft, input_size, is_inception
 
 class SqueezeNet_cp(PretrainedModel):
     def get_model(self, num_classes: int, feature_extract: bool = True, use_pretrained: bool=True):
@@ -115,7 +131,9 @@ class SqueezeNet_cp(PretrainedModel):
         model_ft.num_classes = num_classes
         input_size = 224
 
-        return model_ft, input_size
+        is_inception = False
+
+        return model_ft, input_size, is_inception
 
 class InceptionV3_cp(PretrainedModel):
     def get_model(self, num_classes: int, feature_extract: bool = True, use_pretrained: bool=True):
@@ -130,5 +148,7 @@ class InceptionV3_cp(PretrainedModel):
         model_ft.fc = nn.Linear(num_ftrs,num_classes)
         input_size = 299
 
-        return model_ft, input_size
+        is_inception = True
+
+        return model_ft, input_size, is_inception
 
