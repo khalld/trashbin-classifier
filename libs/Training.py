@@ -1,133 +1,129 @@
-import time
-from sklearn.metrics import accuracy_score  # computes subset accuracy: the set of labels predicted for a sample must exactly match the corresponding set of labels in y_true. https://scikit-learn.org/stable/modules/generated/sklearn.metrics.accuracy_score.html
-from os.path import join
-import numpy as np
-
 import torch
-from torch import nn    # basic building-blocks for graphs https://pytorch.org/docs/stable/nn.html
-from torch.optim import SGD
+import torch.optim as optim
+import time
+import copy
+from torch import nn
 from torch.utils.tensorboard import SummaryWriter
-from libs.TDContainer import TDContainer
+import os
 
-class AverageValueMeter():
-    """ Calculate"""
-    def __init__(self):
-        self.reset()
+def train_model_adapted(model,
+                        dst_container, 
+                        criterion,
+                        optimizer,
+                        num_epochs=25, 
+                        model_name='experiment',
+                        train_from_epoch=0,
+                        save_each_iter=2,
+                        resume_global_step_from=0,
+                        is_inception=False):
 
-    def reset(self):
-        self.sum = 0
-        self.num = 0
-
-    def add(self, value, num):
-        self.sum += value*num
-        self.num += num
-
-    def value(self):
-        try:
-            return self.sum/self.num
-        except:
-            return None
-
-def trainval_classifier(model, dst_container: TDContainer, model_name='experiment',
-                        lr: float=0.01, epochs: int=10, momentum: float=0.99,
-                        logdir: str='logs', modeldir: str='models', train_from_epoch: int=0,
-                        save_on_runtime: bool=False, save_each_iter: int=20, logs_txt: bool=False,
-                        resume_global_step_from: int=0):
+    # train_from_epoch, save_each_iter, resume_global_step_from,
     
-    timer_start = time.time()    
-    criterion = nn.CrossEntropyLoss() # used for classification https://pytorch.org/docs/stable/generated/torch.nn.CrossEntropyLoss.html
-    optimizer = SGD(model.parameters(), lr=lr, momentum=momentum)
+    since = time.time()
 
     # meters
-    loss_meter = AverageValueMeter()
-    acc_meter = AverageValueMeter()
+    val_acc_history = []
+    best_model_wts = copy.deepcopy(model.state_dict())
+    best_acc = 0.0
 
-    # writer
-    writer = SummaryWriter(join(logdir, model_name))
+    # manca il writer
+    writer = SummaryWriter(os.path.join('logs', model_name))
 
-    if logs_txt is True:
-        logs_txt_file = open(join(logdir, model_name + '/terminal_logs.txt'), 'a')
-
-    # device
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
     model.to(device)
-    ## definiamo un dizionario contenente i loader di training e test
-    loader = {
+
+    dataloaders = {
         'train': dst_container.training_loader,
         'validation': dst_container.validation_loader
     }
+
     global_step = 0 + resume_global_step_from
-    for e in range(epochs):
-        print ("\rCurrent computing: %d/%d" % ( e+1,  epochs), end="") # \r allow to make carriage returns
-        ## print ("\rComputed: %d/%d, current: loss: %s accuracy: %s" % ( e+1,  epochs, loss_meter.value(), acc_meter.value()), end="") # \r allow to make carriage returns
-        # iteriamo tra due modalità: train e test
-        for mode in ['train', 'validation']:
-            loss_meter.reset(); acc_meter.reset()
-            model.train() if mode == 'train' else model.eval()
-            with torch.set_grad_enabled(mode=='train'): # abilitiamo i gradienti o solo in training
-                for i, batch in enumerate(loader[mode]):
-                    x = batch[0].to(device) # portiamoli su device corretto
-                    y = batch[1].to(device)
-                    output = model(x)
+    for epoch in range(num_epochs):
+        print('Epoch {}/{}'.format(epoch, num_epochs - 1))
+        print('-' * 10)
 
-                    # aggiorniamo il global_step
-                    # conterrà il numero di campioni visti durante il training
-                    n = x.shape[0]  # n di elementi nel batch
-                    global_step += n
-                    l = criterion(output, y)
+        # Each epoch has a training and validation phase
+        for phase in ['train', 'validation']:
+            if phase == 'train':
+                model.train()  # Set model to training mode
+            else:
+                model.eval()   # Set model to evaluate mode
 
-                    if mode == 'train':
-                        l.backward()
+            running_loss = 0.0
+            running_corrects = 0
+
+            # Iterate over data.
+            for inputs, labels in dataloaders[phase]:
+                inputs = inputs.to(device)
+                labels = labels.to(device)
+
+                # print("n di elementi del training", inputs.shape[0])
+                global_step += inputs.shape[0]
+
+                # zero the parameter gradients
+                optimizer.zero_grad()
+
+                # forward
+                # track history if only in train
+                with torch.set_grad_enabled(phase == 'train'):
+                    # Get model outputs and calculate loss
+                    # Special case for inception because in training it has an auxiliary output. In train
+                    #   mode we calculate the loss by summing the final output and the auxiliary output
+                    #   but in testing we only consider the final output.
+                    if is_inception and phase == 'train':
+                        # From https://discuss.pytorch.org/t/how-to-optimize-inception-model-with-auxiliary-classifiers/7958
+                        outputs, aux_outputs = model(inputs)
+                        loss1 = criterion(outputs, labels)
+                        loss2 = criterion(aux_outputs, labels)
+                        loss = loss1 + 0.4*loss2
+                    else:
+                        outputs = model(inputs)
+                        loss = criterion(outputs, labels)
+
+                    _, preds = torch.max(outputs, 1)
+
+                    # backward + optimize only if in training phase
+                    if phase == 'train':
+                        loss.backward()
                         optimizer.step()
-                        optimizer.zero_grad()
 
-                    acc = accuracy_score(y.to('cpu'), output.to('cpu').max(1)[1])
-                    loss_meter.add(l.item(), n)
-                    acc_meter.add(acc,n)
+                # statistics
+                running_loss += loss.item() * inputs.size(0)
+                running_corrects += torch.sum(preds == labels.data)
 
-                    # loggiamo i risultati iterazione per iterazione solo durante il training
-                    if mode == 'train':
-                        writer.add_scalar('loss/train', loss_meter.value(), global_step=global_step)
-                        writer.add_scalar('accuracy/train', acc_meter.value(), global_step=global_step)
+                # loggiamo i risultati iterazione per iterazione solo durante il training
+                if phase == 'train':
+                    writer.add_scalar('loss/train', running_loss , global_step=global_step)
+                    writer.add_scalar('accuracy/train', running_corrects , global_step=global_step)
 
-                # una volta finita l'epoca sia nel caso di training che di test loggiamo le stime finali
-                writer.add_scalar('loss/' + mode, loss_meter.value(), global_step=global_step)
-                writer.add_scalar('accuracy/' + mode, acc_meter.value(), global_step=global_step)
 
-        # print("\n\n", "Epoch:", (e+1), "loss: ", loss_meter.value(), " accuracy: ", acc_meter.value() )
-        if logs_txt is True:
-            logs_txt_file.write("\nEpoch:" + str(e+1) + "loss: " + str(loss_meter.value()) + " accuracy: " + str(acc_meter.value()))
+            epoch_loss = running_loss / len(dataloaders[phase].dataset)
+            epoch_acc = running_corrects.double() / len(dataloaders[phase].dataset)
 
-        # conserviamo i pesi del modello alla fine di un ciclo di training e test..
-        # ...sul runtime
-        if save_on_runtime is True:
-            torch.save(model.state_dict(), '%s-%d.pth'%(model_name, (e+1) + train_from_epoch ) )
+            # una volta finita l'epoca sia nel caso di training che di test loggiamo le stime finali
+            writer.add_scalar('loss/' + phase, epoch_loss, global_step=global_step)
+            writer.add_scalar('accuracy/' + phase, epoch_acc , global_step=global_step)
 
-        # ...ogni save_each_iter salvo il modello sul drive per evitare problemi di spazio su Gdrive
-        if ((e+1) % save_each_iter == 0 or (e+1) % 50 == 0):
-            torch.save(model.state_dict(), modeldir + '/%s-%d.pth'%(model_name, (e+1) + train_from_epoch ) )
+            print('{} Loss: {:.4f} Acc: {:.4f}'.format(phase, epoch_loss, epoch_acc))
 
-    timer_end = time.time()
-
-    if logs_txt is True:
-        logs_txt_file.write("\nEnded in: " + str((timer_end - timer_start) / 60 ) + "minutes")
-        logs_txt_file.close()
+            # deep copy the model
+            if phase == 'validation' and epoch_acc > best_acc:
+                best_acc = epoch_acc
+                best_model_wts = copy.deepcopy(model.state_dict())
+            if phase == 'validation':
+                val_acc_history.append(epoch_acc)
         
-    print("\nEnded in: ", ((timer_end - timer_start) / 60 ), "minutes" )
-    return model
+
+        # if save_on_runtime is True:
+        if ((epoch+1) % save_each_iter == 0):
+            torch.save(model.state_dict(), 'models/%s-%d.pth'%(model_name, (epoch+1)+train_from_epoch ))
 
 
-def test_classifier(model, loader):
-    device = "cuda" if torch.cuda.is_available() else "cpu"
-    model.to(device)
-    predictions, labels = [], []
-    for batch in loader:
-        x = batch[0].to(device)
-        y = batch[1].to(device)
-        output = model(x)
-        preds = output.to('cpu').max(1)[1].numpy()
-        labs = y.to('cpu').numpy()
-        predictions.extend(list(preds))
-        labels.extend(list(labs))
-    return np.array(predictions), np.array(labels)
+    time_elapsed = time.time() - since
+    print('Training complete in {:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))
+    print('Best val Acc: {:4f}'.format(best_acc))
+
+    # load best model weights
+    model.load_state_dict(best_model_wts)
+    return model, val_acc_history
