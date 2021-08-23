@@ -1,3 +1,4 @@
+from libs.TDContainer import TDContainer
 import torch
 import torch.optim as optim
 import time
@@ -6,31 +7,39 @@ from torch import nn
 from torch.utils.tensorboard import SummaryWriter
 import os
 
-def train_model(model,
-                        dst_container, 
-                        criterion,
-                        optimizer,
-                        num_epochs=25, 
-                        model_name='experiment',
-                        train_from_epoch=0,
-                        save_each_iter=2,
-                        resume_global_step_from=0,
-                        is_inception=False):
-
-    # train_from_epoch, save_each_iter, resume_global_step_from,
+def train_model(model, dst_container: TDContainer, criterion: nn, optimizer: optim, num_epochs: int=25, model_name: str='experiment', train_from_epoch: int=0, save_each_iter: int=2, resume_global_step_from: int=0, is_inception: bool=False):
+    """
+        Parameters
+        -----------
+            model: required
+                model to train
+            dst_container: TDContainer, required
+            criterion: nn, required
+            optimizer: optim, required
+            num_epochs: int, default 25
+            model_name: str, default 'experiment'
+            train_from_epoch: int, 
+                allows you to save the model from a certain epoch useful when need to continue a training from .pth model
+            save_each_iter: int,
+                save .pth model each times
+            resume_global_step_from: int
+                keep writing on tensoboard from a specific point
+            is_inception:
+                used for training with inceptionv3
+    """
     
-    since = time.time()
+    time_start = time.time()
 
     # meters
     val_acc_history = []
     best_model_wts = copy.deepcopy(model.state_dict())
     best_acc = 0.0
 
-    # manca il writer
     writer = SummaryWriter(os.path.join('logs', model_name))
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
+    # moving model to device
     model.to(device)
 
     dataloaders = {
@@ -114,13 +123,11 @@ def train_model(model,
             if phase == 'validation':
                 val_acc_history.append(epoch_acc)
         
-
-        # if save_on_runtime is True:
         if ((epoch+1) % save_each_iter == 0):
             torch.save(model.state_dict(), 'models/%s-%d.pth'%(model_name, (epoch+1)+train_from_epoch ))
 
 
-    time_elapsed = time.time() - since
+    time_elapsed = time.time() - time_start
     print('Training complete in {:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))
     print('Best val Acc: {:4f}'.format(best_acc))
 
