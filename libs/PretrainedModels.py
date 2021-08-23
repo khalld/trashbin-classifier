@@ -4,68 +4,62 @@ from __future__ import print_function
 from __future__ import division
 from abc import ABC, abstractmethod
 
-from libs.TDContainer import TDContainer  
 from libs.Training import train_model
-from torchvision import datasets, models, transforms
-import torch
 import torch.nn as nn
 import torch.optim as optim
-import numpy as np
-import torchvision
-from torchvision import datasets, models, transforms
-import matplotlib.pyplot as plt
-import time
-import os
-import copy
+from torchvision import models
 
-# helper function
-def set_parameter_requires_grad(model, feature_extracting):
+def set_parameter_requires_grad(model, feature_extracting: bool):
+    """Helper function that sets the `require_grad` attribute of parameter in the model to False when is used feature extracting"""
+
     if feature_extracting:
         for param in model.parameters():
             param.requires_grad = False
 
-# Creator
 class PretrainedModelsCreator(ABC):
-    """The Creator class declares the factory method that is supposed to return an
-    object of a Product class. The Creator's subclasses usually provide the
-    implementation of this method."""
+    """The Creator class declares the factory method that return an object of a Product class."""
 
     @abstractmethod
     def factory_method(self):
         """No default implementation needed"""
+
         pass
 
-    # cosa da fare all'inizio
-    def init_model(self, model_name, num_classes: int = 3, feature_extract: bool=True, use_pretrained: bool = True):
-        """
-            Nasce dalla necessità che a livello di GUI non devo inizializzare nessun dataset né dataLoader ma semplicemente devo scaricare il modello
-        """
+    def init_model(self, model_name: str, num_classes: int = 3, feature_extract: bool=True, use_pretrained: bool = True):
+        """Initialize the model"""
+
         product = self.factory_method()
         self.feature_extract = feature_extract
         self.model_name = model_name
         self.model_ft, self.input_size, self.is_inception = product.get_model(num_classes, feature_extract, use_pretrained)
 
     def do_train(self, dataset, num_epochs, lr, momentum, criterion, train_from_epoch, save_each_iter, resume_global_step_from):
-        print('Feature extract is setted to: ', self.feature_extract)
+        """Make training of the current model"""
 
-        # Create optimizer
-        params_to_update = self.model_ft.parameters()
+        if (self.feature_extract is True):
+            print('Feature extracting')
+        else:
+            print('Fine tuning')
         
+        # create an optimizer that allow to update
+        params_to_update = self.model_ft.parameters()
+
+        # If is choosed finetuning all parameters will be updated. 
+        # if is choosed feature extract method, only parameters just initialized will be updated (with requires_grad=True)
+
         if self.feature_extract:
             params_to_update = []
             for name,param in self.model_ft.named_parameters():
-                if param.requires_grad == True:
+                if param.requires_grad == True: 
                     params_to_update.append(param)
-                    print("\t",name)
-        else:
-            for name,param in self.model_ft.named_parameters():
-                if param.requires_grad == True:
-                    print("\t",name)
+        #             print("\t",name)
+        # else:
+        #     for name,param in self.model_ft.named_parameters():
+        #         if param.requires_grad == True:
+        #             print("\t",name)
 
-        optimizer = optim.SGD(params_to_update, lr=lr, momentum=momentum)
-        # End create optimizer
+        optimizer = optim.SGD(params_to_update, lr=lr, momentum=momentum) # to optimize the parameter
 
-        # criterion = nn.CrossEntropyLoss()
         model_tr, history = train_model(model=self.model_ft,
                                         dst_container=dataset,
                                         criterion=criterion,
@@ -88,14 +82,19 @@ class PretrainedModelsCreator(ABC):
     #         self.model.load_state_dict(torch.load(path), strict=False) # VEDI COSA SIGNIFICA STRICT
 
     def get_info(self) -> None:
+        """Get info of finetuned model"""
+
         print("Finetuned model info:\n", self.model_ft)
         print("Input size:\n", self.input_size)
 
-    # non so se sono necessari
     def ret_model(self):
+        """Return finetuned model"""
+
         return self.model_ft
 
     def ret_input_size(self):
+        """Return input size of the finetuned model"""
+
         return self.input_size
 
 """ Concrete Creators override the factory method in order to change the resulting product's type. """
