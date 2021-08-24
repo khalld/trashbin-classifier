@@ -3,13 +3,14 @@ from __future__ import annotations
 from __future__ import print_function 
 from __future__ import division
 from abc import ABC, abstractmethod
+from libs.TDContainer import TDContainer
 
 from libs.Training import train_model
 import torch.nn as nn
 import torch.optim as optim
 from torchvision import models
 
-def set_parameter_requires_grad(model, feature_extracting: bool):
+def set_parameter_requires_grad(model: models, feature_extracting: bool):
     """Helper function that sets the `require_grad` attribute of parameter in the model to False when is used feature extracting"""
 
     if feature_extracting:
@@ -33,7 +34,7 @@ class PretrainedModelsCreator(ABC):
         self.model_name = model_name
         self.model_ft, self.input_size, self.is_inception = product.get_model(num_classes, feature_extract, use_pretrained)
 
-    def do_train(self, dataset, num_epochs, lr, momentum, criterion, train_from_epoch, save_each_iter, resume_global_step_from):
+    def do_train(self, dataset: TDContainer, num_epochs: int, lr: float, momentum: float, criterion: nn, train_from_epoch: int, save_each_iter: int, resume_global_step_from: int):
         """Make training of the current model"""
 
         if (self.feature_extract is True):
