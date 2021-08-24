@@ -1,5 +1,5 @@
 from torch.utils import data # necessary to create a map-style dataset https://pytorch.org/docs/stable/data.html
-from os.path import splitext
+from os.path import splitext, join
 from PIL import Image
 import numpy as np
 import pandas as pd
@@ -26,7 +26,7 @@ class TrashbinDataset(data.Dataset): # data.Dataset https://pytorch.org/docs/sta
             Return image, label of i element of dataset  
     """
 
-    def __init__(self, csv=None, transform=None):
+    def __init__(self, csv=None, transform=None, path_gdrive=''):
         """ Constructor of the dataset
             Parameters
             ----------
@@ -50,6 +50,7 @@ class TrashbinDataset(data.Dataset): # data.Dataset https://pytorch.org/docs/sta
         self.data = pd.read_csv(csv)        # import from csv using pandas
         self.data = self.data.iloc[np.random.permutation(len(self.data))]       # random auto-permutation of the data
         self.transform = transform
+        self.path_gdrive = path_gdrive # necessary to apply the prepath in gdrive witouth chancing csv
 
     def __len__(self):
         """ Return length of dataset """
@@ -72,7 +73,7 @@ class TrashbinDataset(data.Dataset): # data.Dataset https://pytorch.org/docs/sta
             raise NotImplementedError("Only int type is supported for get the item. None is not allowed")
         
         im_path, im_label = self.data.iloc[i]['image'], self.data.iloc[i].label
-        im = Image.open(im_path)        # Handle image with Image module from Pillow https://pillow.readthedocs.io/en/stable/reference/Image.html
+        im = Image.open(join(self.path_gdrive,im_path))        # Handle image with Image module from Pillow https://pillow.readthedocs.io/en/stable/reference/Image.html
         if self.transform is not None:
             im = self.transform(im)
         return im, im_label

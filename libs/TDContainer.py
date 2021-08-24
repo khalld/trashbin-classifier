@@ -1,3 +1,4 @@
+from os import path
 from random import shuffle
 from libs.TrashbinDataset import TrashbinDataset ## run local
 # from TrashbinDataset import TrashbinDataset ## run colab
@@ -11,7 +12,7 @@ class TDContainer:
         self.training_loader, self.validation_loader, self.test_loader are DataLoader of the correspective TrashbinDataset
     """
 
-    def __init__(self, training=None, validation=None, test=None):
+    def __init__(self, training=None, validation=None, test=None, path_gdrive: str=''):
         """ Constructor of the class. Instantiate an TrashbinDataset dataset for each dataset
 
             Parameters
@@ -35,9 +36,9 @@ class TDContainer:
         if training['path'] is None or validation['path'] is None or test['path'] is None or isinstance(training['path'], str) is False or isinstance(validation['path'], str) is False or isinstance(test['path'], str) is False:
             raise NotImplementedError("Path file is required and need to be a str type.")
 
-        self.training = TrashbinDataset(training['path'], transform=training['transform'])
-        self.validation = TrashbinDataset(validation['path'], transform=validation['transform'])
-        self.test = TrashbinDataset(test['path'], transform=test['transform'])
+        self.training = TrashbinDataset(training['path'], transform=training['transform'], path_gdrive=path_gdrive)
+        self.validation = TrashbinDataset(validation['path'], transform=validation['transform'], path_gdrive=path_gdrive)
+        self.test = TrashbinDataset(test['path'], transform=test['transform'], path_gdrive=path_gdrive)
         self.hasDl = False
 
     def create_data_loader(self, batch_size=32, num_workers=2, drop_last=False):
