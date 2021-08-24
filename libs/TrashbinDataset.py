@@ -3,6 +3,7 @@ from os.path import splitext, join
 from PIL import Image
 import numpy as np
 import pandas as pd
+from torchvision import transforms
 
 class TrashbinDataset(data.Dataset): # data.Dataset https://pytorch.org/docs/stable/_modules/torch/utils/data/dataset.html#Dataset
     """ A map-style dataset class used to manipulate a dataset composed by:
@@ -26,7 +27,7 @@ class TrashbinDataset(data.Dataset): # data.Dataset https://pytorch.org/docs/sta
             Return image, label of i element of dataset  
     """
 
-    def __init__(self, csv=None, transform=None, path_gdrive=''):
+    def __init__(self, csv: str=None, transform: transforms=None, path_gdrive: str=''):
         """ Constructor of the dataset
             Parameters
             ----------
@@ -36,10 +37,13 @@ class TrashbinDataset(data.Dataset): # data.Dataset https://pytorch.org/docs/sta
             transform : torchvision.transforms
             apply transform to the dataset
 
+            path_gdrive: str
+            necessary to apply the prepath in gdrive witouth changing csv
+
             Raises
             ------
             NotImplementedError
-                If no path is passed is not provided a default dataset
+                If no path is passed is not provided a default dataset, default to load the image use only the csv file
         """
         
         if csv is None:
@@ -50,7 +54,7 @@ class TrashbinDataset(data.Dataset): # data.Dataset https://pytorch.org/docs/sta
         self.data = pd.read_csv(csv)        # import from csv using pandas
         self.data = self.data.iloc[np.random.permutation(len(self.data))]       # random auto-permutation of the data
         self.transform = transform
-        self.path_gdrive = path_gdrive # necessary to apply the prepath in gdrive witouth chancing csv
+        self.path_gdrive = path_gdrive
 
     def __len__(self):
         """ Return length of dataset """
