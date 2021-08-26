@@ -5,7 +5,7 @@ from __future__ import division
 from abc import ABC, abstractmethod
 from libs.TDContainer import TDContainer
 
-from libs.Training import train_model
+from libs.Training import train_model, trainval_classifier
 import torch.nn as nn
 import torch.optim as optim
 from torchvision import models
@@ -61,18 +61,24 @@ class PretrainedModelsCreator(ABC):
 
         optimizer = optim.SGD(params_to_update, lr=lr, momentum=momentum) # to optimize the parameter
 
-        model_tr, history = train_model(model=self.model_ft,
-                                        dst_container=dataset,
-                                        criterion=criterion,
-                                        optimizer=optimizer,
-                                        num_epochs=num_epochs,
-                                        model_name=self.model_name,
-                                        train_from_epoch=train_from_epoch,
-                                        save_each_iter=save_each_iter,
-                                        resume_global_step_from=resume_global_step_from,
-                                        is_inception=self.is_inception)
+        # model_tr, history = train_model(model=self.model_ft,
+        #                                 dst_container=dataset,
+        #                                 criterion=criterion,
+        #                                 optimizer=optimizer,
+        #                                 num_epochs=num_epochs,
+        #                                 model_name=self.model_name,
+        #                                 train_from_epoch=train_from_epoch,
+        #                                 save_each_iter=save_each_iter,
+        #                                 resume_global_step_from=resume_global_step_from,
+        #                                 is_inception=self.is_inception)
 
-        return model_tr, history
+        # return model_tr, history
+
+        model_tr = trainval_classifier(model=self.model_ft, dst_container=dataset, criterion=criterion, 
+                                        optimizer=optimizer, epochs=num_epochs, train_from_epoch=train_from_epoch, 
+                                        save_each_iter=save_each_iter, model_name=self.model_name, resume_global_step_from=resume_global_step_from )
+
+        return model_tr
 
     # self.device è deprecato!!!
     # def load_model(self, path: str) -> None:
