@@ -4,8 +4,8 @@ from __future__ import print_function
 from __future__ import division
 from abc import ABC, abstractmethod
 from libs.TDContainer import TDContainer
-
 from libs.Training import train
+import torch
 import torch.nn as nn
 import torch.optim as optim
 from torchvision import models
@@ -32,9 +32,9 @@ class PretrainedModelsCreator(ABC):
         product = self.factory_method()
         self.feature_extract = feature_extract
         self.model_name = model_name
-        self.model_ft, self.input_size, self.is_inception = product.get_model(num_classes, feature_extract, use_pretrained)
+        self.model, self.input_size, self.is_inception = product.get_model(num_classes, feature_extract, use_pretrained)
 
-    def do_train(self, dataset: TDContainer, num_epochs: int, lr: float, momentum: float, criterion: nn, train_from_epoch: int, save_each_iter: int, resume_global_step_from: int):
+    def do_train(self, dataset: TDContainer, num_epochs: int, lr: float, momentum: float, criterion: nn, train_from_epoch: int, save_each: int, resume_global_step_from: int):
         """Make training of the current model"""
 
         if (self.feature_extract is True):
@@ -43,61 +43,48 @@ class PretrainedModelsCreator(ABC):
             print('Fine tuning')
         
         # create an optimizer that allow to update
-        params_to_update = self.model_ft.parameters()
+        params_to_update = self.model.parameters()
 
         # If is choosed finetuning all parameters will be updated. 
         # if is choosed feature extract method, only parameters just initialized will be updated (with requires_grad=True)
 
         if self.feature_extract:
             params_to_update = []
-            for name,param in self.model_ft.named_parameters():
+            for name,param in self.model.named_parameters():
                 if param.requires_grad == True: 
                     params_to_update.append(param)
         #             print("\t",name)
         # else:
-        #     for name,param in self.model_ft.named_parameters():
+        #     for name,param in self.model.named_parameters():
         #         if param.requires_grad == True:
         #             print("\t",name)
 
         optimizer = optim.SGD(params_to_update, lr=lr, momentum=momentum) # to optimize the parameter
 
-        # model_tr, history = train_model(model=self.model_ft,
-        #                                 dst_container=dataset,
-        #                                 criterion=criterion,
-        #                                 optimizer=optimizer,
-        #                                 num_epochs=num_epochs,
-        #                                 model_name=self.model_name,
-        #                                 train_from_epoch=train_from_epoch,
-        #                                 save_each_iter=save_each_iter,
-        #                                 resume_global_step_from=resume_global_step_from,
-        #                                 is_inception=self.is_inception)
-
-        # return model_tr, history
-
-        model_tr = train(model=self.model_ft, dst_container=dataset, criterion=criterion, 
-                                        optimizer=optimizer, epochs=num_epochs, train_from_epoch=train_from_epoch, 
-                                        save_each_iter=save_each_iter, model_name=self.model_name, resume_global_step_from=resume_global_step_from )
+        model_tr = train(model=self.model, dst_container=dataset, criterion=criterion, optimizer=optimizer, num_epochs=num_epochs, train_from_epoch=train_from_epoch, save_each=save_each, model_name=self.model_name, resume_global_step_from=resume_global_step_from )
 
         return model_tr
 
-    # self.device è deprecato!!!
-    # def load_model(self, path: str) -> None:
-    #     print("Loading model using load_state_dict..")
-    #     if (self.device == "cpu"):
-    #         self.model.load_state_dict(torch.load(path, map_location=torch.device('cpu')), strict=False) # su colab c'è la cpu qui no! quindi se lo alleno sulla gpu devo cambiarlo
-    #     else:
-    #         self.model.load_state_dict(torch.load(path), strict=False) # VEDI COSA SIGNIFICA STRICT
+    def load_model(self, path: str) -> None:
+        print("Loading model using load_state_dict..")
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+        if (device == "cpu"):
+            self.model.load_state_dict(torch.load(path, map_location=torch.device('cpu')), strict=False)
+        else:
+            self.model.load_state_dict(torch.load(path), strict=False)
+    
+        print('Model loaded sucessfully!')
 
     def get_info(self) -> None:
         """Get info of finetuned model"""
 
-        print("Finetuned model info:\n", self.model_ft)
+        print("Finetuned model info:\n", self.model)
         print("Input size:\n", self.input_size)
 
     def ret_model(self):
         """Return finetuned model"""
 
-        return self.model_ft
+        return self.model
 
     def ret_input_size(self):
         """Return input size of the finetuned model"""
@@ -116,6 +103,10 @@ class SqueezeNet_cc(PretrainedModelsCreator):
 class InceptionV3_cc(PretrainedModelsCreator):
     def factory_method(self) -> PretrainedModel:
         return InceptionV3_cp()
+
+class ResNet18_cc(PretrainedModelsCreator):
+    def factory_method(self) -> PretrainedModel:
+        return ResNet18_cp()
 
 """Product"""
 class PretrainedModel(ABC):
@@ -168,3 +159,14 @@ class InceptionV3_cp(PretrainedModel):
 
         return model_ft, input_size, is_inception
 
+class ResNet18_cp(PretrainedModel):
+    def get_model(self, num_classes: int, feature_extract: bool, use_pretrained: bool):
+        model_ft = models.resnet18(pretrained=use_pretrained)
+        set_parameter_requires_grad(model_ft, feature_extract)
+        num_ftrs = model_ft.fc.in_features
+        model_ft.fc = nn.Linear(num_ftrs, num_classes)
+        input_size = 224
+
+        is_inception = False
+
+        return model_ft, input_size, is_inception
