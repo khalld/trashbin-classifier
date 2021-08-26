@@ -31,7 +31,7 @@ if __name__ == "__main__":
         'label': labels
     })
 
-    training_df, validation_df, test_df = split_train_val_test(dataset=dataset_df)
+    training_df, validation_df, test_df = split_train_val_test(dataset=dataset_df, perc=[0.5, 0.2, 0.3])
 
     # save to csv
     training_df.to_csv('dataset/training.csv', index=None)

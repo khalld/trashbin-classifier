@@ -48,9 +48,8 @@ if __name__ == "__main__":
     path_vid = 'dataset/videos/'
     ext = '.mp4'
 
-
     # number of frames for video
-    frames_per_video = 250
+    frames_per_video = 500
 
     print('Extracting frames..')
 
@@ -59,7 +58,7 @@ if __name__ == "__main__":
 
     for curr_folder in (source_folders_arr):
         for key in (class_dict):
-            get_frame(path_vid + '/' + curr_folder + '/' + key + ext, 'dataset/images/', frames_per_video, all_labels, class_dict[key])
+            get_frame(path_vid + curr_folder + '/' + key + ext, 'dataset/images/', frames_per_video, all_labels, class_dict[key])
     all_labels.close()
 
     print('All frames are extracted')

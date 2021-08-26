@@ -5,7 +5,7 @@ from __future__ import division
 from abc import ABC, abstractmethod
 from libs.TDContainer import TDContainer
 
-from libs.Training import train_model, trainval_classifier
+from libs.Training import train
 import torch.nn as nn
 import torch.optim as optim
 from torchvision import models
@@ -74,7 +74,7 @@ class PretrainedModelsCreator(ABC):
 
         # return model_tr, history
 
-        model_tr = trainval_classifier(model=self.model_ft, dst_container=dataset, criterion=criterion, 
+        model_tr = train(model=self.model_ft, dst_container=dataset, criterion=criterion, 
                                         optimizer=optimizer, epochs=num_epochs, train_from_epoch=train_from_epoch, 
                                         save_each_iter=save_each_iter, model_name=self.model_name, resume_global_step_from=resume_global_step_from )
 

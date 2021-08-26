@@ -1,4 +1,6 @@
 from os.path import join
+from numpy.core.records import array
+from pandas.core.frame import DataFrame
 
 from torchvision import transforms
 from libs.TDContainer import TDContainer
@@ -27,17 +29,16 @@ def import_dataset(path_dst: str, train_transform: transforms, test_transform: t
 
     return TDContainer(training=dst_train, validation=dst_validation, test=dst_test, path_gdrive=path_gdrive)
 
-def split_train_val_test(dataset, perc=[0.6, 0.1, 0.3]):
+def split_train_val_test(dataset: DataFrame, perc: array):
     train, testval = train_test_split(dataset, test_size = perc[1]+perc[2])
     val, test = train_test_split(testval, test_size = perc[2]/(perc[1]+perc[2]))
     return train, val, test
 
-
-def reverse_norm(im):
+def reverse_norm(image):
     """Allow to show a normalized image"""
     
-    im = im-im.min()
-    return im/im.max()
+    image = image-image.min()
+    return image/image.max()
 
 def init_model(creator: PretrainedModelsCreator, model_name: str, num_classes: int = 3, feature_extract: bool=True, use_pretrained: bool = True):
     print('Initializing: %s' % (model_name))
