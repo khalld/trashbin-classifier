@@ -43,13 +43,13 @@ if __name__ == "__main__":
         "full": 2
     }
 
-    source_folders_arr = ['01', '02', '03', '04', '05', '06', '07', '08', '09']
+    source_folders_arr = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11']
 
     path_vid = 'dataset/videos/'
     ext = '.mp4'
 
     # number of frames for video
-    frames_per_video = 500
+    frames_per_video = 400
 
     print('Extracting frames..')
 
