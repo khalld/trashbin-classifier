@@ -76,9 +76,9 @@ class PretrainedModelsCreator(ABC):
         print('Model loaded sucessfully!')
 
     def get_info(self) -> None:
-        """Get info of finetuned model"""
+        """Get info of model"""
 
-        print("Finetuned model info:\n", self.model)
+        print("Model info:\n", self.model)
         print("Input size:\n", self.input_size)
 
     def ret_model(self):
