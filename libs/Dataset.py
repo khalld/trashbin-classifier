@@ -12,7 +12,7 @@ path_gdrive = ''
 
 dst = import_dataset(path_dst=path_dst, 
     train_transform=transforms.Compose([
-        transforms.Resize(256),
+        transforms.Resize(230), # taglio solo una piccola parte col randomCrop in modo tale da prendere sempre il secchio
         transforms.RandomCrop(224),
         transforms.RandomApply(ModuleList([
             transforms.ColorJitter(brightness=.3, hue=.2),
