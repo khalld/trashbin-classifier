@@ -11,7 +11,7 @@ def get_model_name(model_name: str, lr: str):
     """Return a string that contain a model name and larning ratee"""
     return "%s__lr=%s" % (model_name, lr)
 
-def import_dataset(path_dst: str, train_transform: transforms, validation_transform: transforms, test_transform: transforms, path_gdrive: str=''):
+def import_dataset(path_dst: str, train_transform: transforms, test_transform: transforms, path_gdrive: str=''):
     dst_train = {
         'path': join(path_dst, 'training.csv'),
         'transform': train_transform
@@ -19,7 +19,7 @@ def import_dataset(path_dst: str, train_transform: transforms, validation_transf
 
     dst_validation = {
         'path': join(path_dst, 'validation.csv'),
-        'transform': validation_transform
+        'transform': train_transform
         }
 
     dst_test = {

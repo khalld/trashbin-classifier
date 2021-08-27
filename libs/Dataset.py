@@ -13,8 +13,7 @@ path_gdrive = ''
 dst = import_dataset(path_dst=path_dst, 
     train_transform=transforms.Compose([
         transforms.Resize(256),
-        # using the same as the test because the trash bin is centered in the image
-        transforms.CenterCrop(224), # good for inceptionv3?
+        transforms.RandomCrop(224),
         transforms.RandomApply(ModuleList([
             transforms.ColorJitter(brightness=.3, hue=.2),
         ]), p=0.3),
@@ -22,16 +21,6 @@ dst = import_dataset(path_dst=path_dst,
         transforms.RandomHorizontalFlip(p=0.3),
         transforms.RandomPerspective(distortion_scale=0.3, p=0.2),
         transforms.RandomEqualize(p=0.2),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=mean, std=std)
-    ]),
-    validation_transform=transforms.Compose([
-        transforms.Resize(256), 
-        transforms.CenterCrop(224), # good for inceptionv3?
-        transforms.AutoAugment(transforms.AutoAugmentPolicy.IMAGENET),
-        transforms.RandomInvert(p=0.3),
-        transforms.RandomHorizontalFlip(p=0.2),
-        transforms.RandomGrayscale(p=0.2),
         transforms.ToTensor(),
         transforms.Normalize(mean=mean, std=std)
     ]),
