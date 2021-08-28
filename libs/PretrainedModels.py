@@ -65,8 +65,10 @@ class PretrainedModelsCreator(ABC):
 
         return model_tr
 
-    def load_model(self, path: str) -> None:
+    def load_model(self, path: str, model_name: str, feature_extract: bool) -> None:
         print("Loading model using load_state_dict..")
+        self.model_name = model_name
+        self.feature_extract = feature_extract
         device = "cuda" if torch.cuda.is_available() else "cpu"
         if (device == "cpu"):
             self.model.load_state_dict(torch.load(path, map_location=torch.device('cpu')), strict=False)
@@ -79,6 +81,7 @@ class PretrainedModelsCreator(ABC):
         """Get info of model"""
 
         print("Model info:\n", self.model)
+        # if self.inputSize
         print("Input size:\n", self.input_size)
 
     def ret_model(self):
@@ -100,6 +103,10 @@ class SqueezeNet_cc(PretrainedModelsCreator):
     def factory_method(self) -> PretrainedModel:
         return SqueezeNet_cp()
 
+class SqueezeNet1_cc(PretrainedModelsCreator):
+    def factory_method(self) -> PretrainedModel:
+        return SqueezeNet1_cp()
+
 class InceptionV3_cc(PretrainedModelsCreator):
     def factory_method(self) -> PretrainedModel:
         return InceptionV3_cp()
@@ -107,6 +114,22 @@ class InceptionV3_cc(PretrainedModelsCreator):
 class ResNet18_cc(PretrainedModelsCreator):
     def factory_method(self) -> PretrainedModel:
         return ResNet18_cp()
+
+class Vgg11_cc(PretrainedModelsCreator):
+    def factory_method(self):
+        return Vgg11_cp()
+
+class Vgg11_bn_cc(PretrainedModelsCreator):
+    def factory_method(self):
+        return Vgg11_bn_cp()
+
+class Densenet121_cc(PretrainedModelsCreator):
+    def factory_method(self):
+        return Densenet121_cp()
+
+class MobilenetV2_cc(PretrainedModelsCreator):
+    def factory_method(self):
+        return MobilenetV2_cp()
 
 """Product"""
 class PretrainedModel(ABC):
@@ -142,6 +165,19 @@ class SqueezeNet_cp(PretrainedModel):
 
         return model_ft, input_size, is_inception
 
+class SqueezeNet1_cp(PretrainedModel):
+    def get_model(self, num_classes: int, feature_extract: bool=True, use_pretrained: bool=True):
+        model_ft = models.squeezenet1_1(pretrained=use_pretrained)
+        set_parameter_requires_grad(model_ft, feature_extract)
+        model_ft.classifier[1] = nn.Conv2d(512, num_classes, kernel_size=(1,1), stride=(1,1))
+
+        model_ft.num_classes = num_classes
+        input_size = 224
+
+        is_inception = False
+
+        return model_ft, input_size, is_inception
+
 class InceptionV3_cp(PretrainedModel):
     def get_model(self, num_classes: int, feature_extract: bool = True, use_pretrained: bool=True):
         """Be careful, expects (299,299) sized images and has auxiliary output """
@@ -165,6 +201,58 @@ class ResNet18_cp(PretrainedModel):
         set_parameter_requires_grad(model_ft, feature_extract)
         num_ftrs = model_ft.fc.in_features
         model_ft.fc = nn.Linear(num_ftrs, num_classes)
+        input_size = 224
+
+        is_inception = False
+
+        return model_ft, input_size, is_inception
+
+class Vgg11_cp(PretrainedModel):
+    def get_model(self, num_classes: int, feature_extract: bool = True, use_pretrained: bool=True):
+
+        model_ft = models.vgg11(pretrained=use_pretrained)
+        set_parameter_requires_grad(model_ft, feature_extract)
+        num_ftrs = model_ft.classifier[6].in_features
+        model_ft.classifier[6] = nn.Linear(num_ftrs,num_classes)
+        input_size = 224
+
+        is_inception = False
+
+        return model_ft, input_size, is_inception
+
+class Vgg11_bn_cp(PretrainedModel):
+    def get_model(self, num_classes: int, feature_extract: bool = True, use_pretrained: bool=True):
+
+        model_ft = models.vgg11_bn(pretrained=use_pretrained)
+        set_parameter_requires_grad(model_ft, feature_extract)
+        num_ftrs = model_ft.classifier[6].in_features
+        model_ft.classifier[6] = nn.Linear(num_ftrs,num_classes)
+        input_size = 224
+
+        is_inception = False
+
+        return model_ft, input_size, is_inception
+
+class Densenet121_cp(PretrainedModel):
+    def get_model(self, num_classes: int, feature_extract: bool, use_pretrained: bool):
+
+        model_ft = models.densenet121(pretrained=use_pretrained)
+        set_parameter_requires_grad(model_ft, feature_extract)
+        num_ftrs = model_ft.classifier.in_features
+        model_ft.classifier = nn.Linear(num_ftrs, num_classes)
+        input_size = 224
+
+        is_inception = False
+
+        return model_ft, input_size, is_inception
+
+class MobilenetV2_cp(PretrainedModel):
+    def get_model(self, num_classes: int, feature_extract: bool = True, use_pretrained: bool=True):
+        
+        model_ft = models.mobilenet_v2(pretrained=use_pretrained)
+        set_parameter_requires_grad(model_ft, feature_extract)
+        last_channel = model_ft.last_channel
+        model_ft.classifier[1] = nn.Linear(last_channel, num_classes)
         input_size = 224
 
         is_inception = False
