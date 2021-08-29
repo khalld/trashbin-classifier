@@ -65,10 +65,8 @@ class PretrainedModelsCreator(ABC):
 
         return model_tr
 
-    def load_model(self, path: str, model_name: str, feature_extract: bool) -> None:
+    def load_model(self, path: str) -> None:
         print("Loading model using load_state_dict..")
-        self.model_name = model_name
-        self.feature_extract = feature_extract
         device = "cuda" if torch.cuda.is_available() else "cpu"
         if (device == "cpu"):
             self.model.load_state_dict(torch.load(path, map_location=torch.device('cpu')), strict=False)
