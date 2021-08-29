@@ -35,31 +35,27 @@ dst = import_dataset(path_dst=path_dst,
         transforms.Normalize(mean=mean, std=std)
     ]), path_gdrive=path_gdrive)
 
-
-
-# dst_inceptionv3 = import_dataset(path_dst=path_dst, 
-#     train_transform=transforms.Compose([
-#         transforms.Resize(320),
-#         # using the same as the test because the trash bin is centered in the image
-#         transforms.CenterCrop(299), # good for inceptionv3?
-#         transforms.RandomApply(ModuleList([
-#             transforms.ColorJitter(brightness=.3, hue=.2),
-#         ]), p=0.3),
-
-#         transforms.RandomApply(ModuleList([
-#             transforms.Grayscale(num_output_channels=3),
-#         ]), p=0.2),
-
-#         transforms.RandomHorizontalFlip(p=0.3),
-#         transforms.RandomPerspective(distortion_scale=0.3, p=0.2),
-#         transforms.RandomEqualize(p=0.2),
-#         transforms.ToTensor(),
-#         transforms.Normalize(mean=mean, std=std)
-#     ]),
-#     test_transform=transforms.Compose([
-#         transforms.Resize(320), 
-#         transforms.CenterCrop(299), # good for inceptionv3?
-#         transforms.AutoAugment(transforms.AutoAugmentPolicy.SVHN),
-#         transforms.ToTensor(),
-#         transforms.Normalize(mean=mean, std=std)
-#     ]), path_gdrive=path_gdrive)
+dst_inceptionv3 = import_dataset(path_dst=path_dst, 
+    train_transform=transforms.Compose([
+        transforms.Resize(310), # taglio solo una piccola parte col randomCrop in modo tale da prendere sempre il secchio
+        transforms.RandomCrop(299),
+        transforms.RandomApply(ModuleList([
+            transforms.ColorJitter(brightness=.3, hue=.2),
+        ]), p=0.3),
+        transforms.RandomGrayscale(p=0.2),
+        transforms.RandomHorizontalFlip(p=0.3),
+        transforms.RandomPerspective(distortion_scale=0.3, p=0.2),
+        transforms.RandomEqualize(p=0.2),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=mean, std=std)
+    ]),
+    test_transform=transforms.Compose([
+        transforms.Resize(320), 
+        transforms.CenterCrop(299), # good for inceptionv3?
+        transforms.AutoAugment(transforms.AutoAugmentPolicy.SVHN),
+        transforms.RandomInvert(p=0.3),
+        transforms.RandomHorizontalFlip(p=0.2),
+        transforms.RandomGrayscale(p=0.2),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=mean, std=std)
+    ]), path_gdrive=path_gdrive)
