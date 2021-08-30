@@ -3,13 +3,13 @@ import torch
 import torchvision.models as models
 from torchvision import transforms
 from PIL import Image
-from libs.PretrainedModels import PretrainedModelsCreator, CCAlexNet
+from libs.PretrainedModels import PretrainedModelsCreator, SqueezeNet1_cc
 
                                                         ## di default carico un modello da mettere nella repo per test antonio
-def init(creator: PretrainedModelsCreator, path_mdl: str='AlexNet_2dst__lr=0.0003-40.pth'):
+def init(creator: PretrainedModelsCreator, path_mdl: str='SqueezeNet1_1__lr=0.00282-50.pth'):
     #print('Instantiating ' )
     #print(type(creator))
-    creator.initialize_model(output_class=3)
+    creator.init_model(num_classes=3, model_name='SqueezeNet_v1_1', feature_extract=True, use_pretrained=True)
     #print parameters to be sure that are different model
     #creator.get_info()
     #creator.get_parameters()
@@ -17,9 +17,9 @@ def init(creator: PretrainedModelsCreator, path_mdl: str='AlexNet_2dst__lr=0.000
     creator.load_model(path=path_mdl)
     #creator.get_parameters()
 
-    return creator.return_model()
+    return creator.ret_model()
 
-my_model = init(creator=CCAlexNet())
+my_model = init(creator=SqueezeNet1_cc())
 # print(my_model, type(my_model))
 my_model.eval()
 # alexnet = models.alexnet(pretrained=True).eval()
