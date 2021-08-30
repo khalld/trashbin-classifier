@@ -66,10 +66,10 @@ class PretrainedModelsCreator(ABC):
 
         return model_tr
 
-    def test_accuracy(self, dataset) -> None:
+    def test_accuracy(self, dataset: TDContainer) -> None:
         """Make accuracy test"""
 
-        predictions, labels = test(self.model, dataset)
+        predictions, labels = test(self.model, dataset.test_loader)
         print ("Accuracy of %s: %0.2f%%" % (self.model_name, accuracy_score(labels, predictions)*100) )
 
     def load_from_file(self, path: str) -> None:
