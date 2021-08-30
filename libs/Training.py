@@ -98,7 +98,7 @@ def train(model: models, dst_container: TDContainer, criterion: nn, optimizer: o
     return model
 
 
-def test_classifier(model: models, loader: DataLoader):
+def test(model: models, loader: DataLoader):
     device = "cuda" if torch.cuda.is_available() else "cpu"
     model.to(device)
     predictions, labels = [], []

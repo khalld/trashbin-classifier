@@ -4,11 +4,12 @@ from __future__ import print_function
 from __future__ import division
 from abc import ABC, abstractmethod
 from libs.TDContainer import TDContainer
-from libs.Training import train
+from libs.Training import train, test
 import torch
 import torch.nn as nn
 import torch.optim as optim
 from torchvision import models
+from sklearn.metrics import accuracy_score
 
 def set_parameter_requires_grad(model: models, feature_extracting: bool):
     """Helper function that sets the `require_grad` attribute of parameter in the model to False when is used feature extracting"""
@@ -65,7 +66,15 @@ class PretrainedModelsCreator(ABC):
 
         return model_tr
 
-    def load_model(self, path: str) -> None:
+    def test_accuracy(self, dataset) -> None:
+        """Make accuracy test"""
+
+        predictions, labels = test(self.model, dataset)
+        print ("Accuracy of %s: %0.2f%%" % (self.model_name, accuracy_score(labels, predictions)*100) )
+
+    def load_from_file(self, path: str) -> None:
+        """Load model from file .pth"""
+
         print("Loading model using load_state_dict..")
         device = "cuda" if torch.cuda.is_available() else "cpu"
         if (device == "cpu"):
@@ -91,6 +100,13 @@ class PretrainedModelsCreator(ABC):
         """Return input size of the finetuned model"""
 
         return self.input_size
+
+    def print_param(self) -> None:
+        """Print weights of model"""
+        
+        for name, param in self.model.named_parameters():
+            if param.requires_grad:
+                print (name, param.data)
 
 """ Concrete Creators override the factory method in order to change the resulting product's type. """
 class AlexNet_cc(PretrainedModelsCreator):

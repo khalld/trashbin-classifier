@@ -45,3 +45,14 @@ def init_model(creator: PretrainedModelsCreator, model_name: str, num_classes: i
     creator.init_model(num_classes=num_classes, model_name=model_name, feature_extract=feature_extract, use_pretrained=use_pretrained)
     # creator.get_info()
     return creator
+
+def load_model(creator: PretrainedModelsCreator, model_name: str, num_classes: int, model_path: str, feature_extract: bool=True, use_pretrained: bool=True ):
+    print('Initializing: %s' % (model_name))
+    creator.init_model(num_classes=num_classes, model_name=model_name, feature_extract=feature_extract, use_pretrained=use_pretrained)
+    # print('Pretrained model from pytorch')
+    # creator.print_param()
+    creator.load_from_file(path=model_path)
+    print('Loaded model from file successfully')
+    # creator.print_param()
+
+    return creator
