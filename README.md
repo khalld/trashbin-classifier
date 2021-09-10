@@ -1,6 +1,6 @@
 # Trash bin classifier
 
-Project c.....
+Model that classify watebin in full, empty, half.
 
 Dataset is available [here](https://drive.google.com/drive/folders/1LmN-fXWZ8UpRkLeMjbootN46V9AHaE4x?usp=sharing)
 
